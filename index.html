@@ -747,7 +747,12 @@
                 };
                 if (isOpen) {
                     document.addEventListener('keydown', handleEsc);
-                    return () => document.removeEventListener('keydown', handleEsc);
+                    // Prevent body scroll when modal is open
+                    document.body.style.overflow = 'hidden';
+                    return () => {
+                        document.removeEventListener('keydown', handleEsc);
+                        document.body.style.overflow = 'unset';
+                    };
                 }
             }, [isOpen, onClose]);
 
@@ -766,7 +771,8 @@
                         alignItems: 'center',
                         justifyContent: 'center',
                         zIndex: 9999,
-                        padding: '1rem'
+                        padding: '1rem',
+                        overflowY: 'auto'
                     }}
                     onClick={onClose}
                 >
@@ -780,7 +786,8 @@
                             maxHeight: '80vh',
                             overflow: 'hidden',
                             position: 'relative',
-                            boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)'
+                            boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)',
+                            margin: 'auto'
                         }}
                         onClick={(e) => e.stopPropagation()}
                     >
