@@ -740,12 +740,163 @@
             return groupedArray;
         }
 
+        function SubmissionModal({ isOpen, onClose, entry }) {
+            useEffect(() => {
+                const handleEsc = (e) => {
+                    if (e.key === 'Escape') onClose();
+                };
+                if (isOpen) {
+                    document.addEventListener('keydown', handleEsc);
+                    return () => document.removeEventListener('keydown', handleEsc);
+                }
+            }, [isOpen, onClose]);
+
+            if (!isOpen) return null;
+
+            return (
+                <div 
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 9999,
+                        padding: '1rem'
+                    }}
+                    onClick={onClose}
+                >
+                    <div 
+                        style={{
+                            background: 'var(--card)',
+                            border: '2px solid var(--primary)',
+                            borderRadius: '12px',
+                            maxWidth: '500px',
+                            width: '100%',
+                            maxHeight: '80vh',
+                            overflow: 'hidden',
+                            position: 'relative',
+                            boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div style={{
+                            padding: '1.5rem',
+                            borderBottom: '1px solid var(--border)',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                            <div>
+                                <div style={{fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem'}}>
+                                    {entry.asset}
+                                </div>
+                                <div style={{fontSize: '0.9rem', color: 'var(--muted-foreground)'}}>
+                                    {entry.submissionCount} Submission{entry.submissionCount > 1 ? 's' : ''}
+                                </div>
+                            </div>
+                            <button
+                                onClick={onClose}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--muted-foreground)',
+                                    fontSize: '1.5rem',
+                                    cursor: 'pointer',
+                                    padding: '0.25rem',
+                                    lineHeight: 1,
+                                    transition: 'color 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.target.style.color = 'var(--foreground)'}
+                                onMouseLeave={(e) => e.target.style.color = 'var(--muted-foreground)'}
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        {/* Submissions List */}
+                        <div style={{
+                            padding: '1rem',
+                            maxHeight: 'calc(80vh - 120px)',
+                            overflowY: 'auto'
+                        }}>
+                            {entry.submissions.map((sub, idx) => (
+                                <a
+                                    key={idx}
+                                    href={sub.link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '0.5rem',
+                                        padding: '1rem',
+                                        marginBottom: '0.75rem',
+                                        background: 'rgba(139, 92, 246, 0.05)',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '8px',
+                                        textDecoration: 'none',
+                                        color: 'var(--foreground)',
+                                        transition: 'all 0.2s',
+                                        cursor: 'pointer'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
+                                        e.currentTarget.style.borderColor = 'var(--primary)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = 'rgba(139, 92, 246, 0.05)';
+                                        e.currentTarget.style.borderColor = 'var(--border)';
+                                    }}
+                                >
+                                    <div style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between'
+                                    }}>
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem',
+                                            fontWeight: '600'
+                                        }}>
+                                            {sub.isWinner && <span style={{fontSize: '1.2em'}}>👑</span>}
+                                            <span>{sub.school}</span>
+                                        </div>
+                                        <span style={{color: 'var(--primary)', fontSize: '1.2rem'}}>→</span>
+                                    </div>
+                                    <div style={{
+                                        fontSize: '0.9rem',
+                                        color: 'var(--muted-foreground)',
+                                        paddingLeft: sub.isWinner ? '1.7rem' : '0'
+                                    }}>
+                                        {sub.author}
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         function SubmissionRow({ entry, isExpanded, onToggle }) {
+            const [showModal, setShowModal] = useState(false);
             const hasMultiple = entry.submissionCount > 1;
             const assetKey = `${entry.asset}-${entry.rank}`;
             
             return (
                 <>
+                    <SubmissionModal 
+                        isOpen={showModal}
+                        onClose={() => setShowModal(false)}
+                        entry={entry}
+                    />
                     <tr className={entry.submissions.some(s => s.isWinner) ? 'winner' : ''}>
                         <td className="rank-cell">
                             {String(entry.rank).padStart(2, '0')}
@@ -780,7 +931,7 @@
                         <td className="school-cell" style={{maxWidth: '200px'}}>
                             {hasMultiple ? (
                                 <button 
-                                    onClick={() => onToggle(assetKey)}
+                                    onClick={() => setShowModal(true)}
                                     style={{
                                         background: 'none',
                                         border: 'none',
@@ -797,7 +948,7 @@
                                     onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(16, 185, 129, 0.1)'}
                                     onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                                 >
-                                    <span>{isExpanded ? '▼' : '▶'}</span>
+                                    <span>▶</span>
                                     <span>{entry.submissionCount} submissions</span>
                                 </button>
                             ) : (
@@ -806,9 +957,22 @@
                         </td>
                         <td className="link-cell">
                             {hasMultiple ? (
-                                <span style={{color: 'var(--muted-foreground)', fontSize: '0.85em'}}>
-                                    {isExpanded ? '↓' : '→'}
-                                </span>
+                                <button
+                                    onClick={() => setShowModal(true)}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: 'var(--muted-foreground)',
+                                        cursor: 'pointer',
+                                        fontSize: '1.2rem',
+                                        padding: '0.25rem',
+                                        transition: 'color 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.color = 'var(--primary)'}
+                                    onMouseLeave={(e) => e.target.style.color = 'var(--muted-foreground)'}
+                                >
+                                    →
+                                </button>
                             ) : (
                                 <a 
                                     href={entry.submissions[0].link} 
@@ -821,31 +985,6 @@
                             )}
                         </td>
                     </tr>
-                    {hasMultiple && isExpanded && entry.submissions.map((sub, idx) => (
-                        <tr key={`${assetKey}-sub-${idx}`} style={{backgroundColor: 'rgba(16, 185, 129, 0.05)'}}>
-                            <td></td>
-                            <td colSpan={2} style={{paddingLeft: '3rem'}}></td>
-                            <td className="school-cell">
-                                <div style={{display: 'flex', alignItems: 'center', gap: '0.4rem'}}>
-                                    {sub.isWinner && <span style={{fontSize: '1em'}}>👑</span>}
-                                    <span>{sub.school}</span>
-                                </div>
-                            </td>
-                            <td className="school-cell" style={{maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
-                                {sub.author}
-                            </td>
-                            <td className="link-cell">
-                                <a 
-                                    href={sub.link} 
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="link-btn"
-                                >
-                                    →
-                                </a>
-                            </td>
-                        </tr>
-                    ))}
                 </>
             );
         }
@@ -858,14 +997,6 @@
             const [lastUpdated, setLastUpdated] = useState(null);
             const [refreshing, setRefreshing] = useState(false);
             const [error, setError] = useState(null);
-            const [expandedRows, setExpandedRows] = useState({});
-
-            const toggleRow = (assetKey) => {
-                setExpandedRows(prev => ({
-                    ...prev,
-                    [assetKey]: !prev[assetKey]
-                }));
-            };
 
             async function loadData() {
                 setRefreshing(true);
@@ -1039,8 +1170,6 @@
                                         <SubmissionRow 
                                             key={`${entry.asset}-${entry.rank}`}
                                             entry={entry}
-                                            isExpanded={expandedRows[`${entry.asset}-${entry.rank}`] || false}
-                                            onToggle={toggleRow}
                                         />
                                     ))
                                 )}
@@ -1056,7 +1185,7 @@
         }
 
         function PodiumEntry({ entry, rank, isLong }) {
-            const [showDropdown, setShowDropdown] = useState(false);
+            const [showModal, setShowModal] = useState(false);
             const isFirst = rank === 1;
             const classes = `podium-entry ${isFirst ? 'first' : rank === 2 ? 'second' : 'third'}`;
             const medal = getPodiumEmoji(rank);
@@ -1067,7 +1196,13 @@
             const accentColorRgb = isLong ? '16, 185, 129' : '239, 68, 68';
             
             return (
-                <div className={classes}>
+                <>
+                    <SubmissionModal 
+                        isOpen={showModal}
+                        onClose={() => setShowModal(false)}
+                        entry={entry}
+                    />
+                    <div className={classes}>
                     <div className="avatar-container">
                         <div className={`rank-badge ${isFirst ? 'first' : ''}`}>
                             Rank #{rank}
@@ -1109,78 +1244,26 @@
                             )}
                         </div>
                         {hasMultiple ? (
-                            <div style={{position: 'relative', marginTop: '0.5rem'}}>
-                                <button 
-                                    onClick={() => setShowDropdown(!showDropdown)}
-                                    style={{
-                                        background: `rgba(${accentColorRgb}, 0.15)`,
-                                        border: `1px solid rgba(${accentColorRgb}, 0.3)`,
-                                        color: accentColor,
-                                        padding: '0.35rem 0.75rem',
-                                        borderRadius: '6px',
-                                        cursor: 'pointer',
-                                        fontSize: '0.75em',
-                                        fontWeight: '500',
-                                        transition: 'all 0.2s',
-                                        width: '100%'
-                                    }}
-                                    onMouseEnter={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.25)`}
-                                    onMouseLeave={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.15)`}
-                                >
-                                    {showDropdown ? '▼' : '▶'} View {entry.submissionCount} Reports
-                                </button>
-                                {showDropdown && (
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: '100%',
-                                        left: '0',
-                                        right: '0',
-                                        marginTop: '0.5rem',
-                                        background: 'var(--card)',
-                                        border: '1px solid var(--border)',
-                                        borderRadius: '8px',
-                                        padding: '0.5rem',
-                                        zIndex: 1000,
-                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                                        maxHeight: '200px',
-                                        overflowY: 'auto'
-                                    }}>
-                                        {entry.submissions.map((sub, idx) => (
-                                            <a 
-                                                key={idx}
-                                                href={sub.link}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'space-between',
-                                                    padding: '0.5rem',
-                                                    borderRadius: '4px',
-                                                    textDecoration: 'none',
-                                                    color: 'var(--foreground)',
-                                                    fontSize: '0.75em',
-                                                    marginBottom: '0.25rem',
-                                                    transition: 'background-color 0.2s'
-                                                }}
-                                                onMouseEnter={(e) => e.target.style.backgroundColor = `rgba(${accentColorRgb}, 0.1)`}
-                                                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                                            >
-                                                <div style={{display: 'flex', flexDirection: 'column', gap: '0.15rem', flex: 1}}>
-                                                    <div style={{display: 'flex', alignItems: 'center', gap: '0.35rem'}}>
-                                                        {sub.isWinner && <span style={{fontSize: '1em'}}>👑</span>}
-                                                        <span style={{fontWeight: '500'}}>{sub.school}</span>
-                                                    </div>
-                                                    <span style={{color: 'var(--muted-foreground)', fontSize: '0.9em'}}>
-                                                        {sub.author}
-                                                    </span>
-                                                </div>
-                                                <span style={{color: accentColor}}>→</span>
-                                            </a>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                            <button 
+                                onClick={() => setShowModal(true)}
+                                style={{
+                                    marginTop: '0.5rem',
+                                    background: `rgba(${accentColorRgb}, 0.15)`,
+                                    border: `1px solid rgba(${accentColorRgb}, 0.3)`,
+                                    color: accentColor,
+                                    padding: '0.35rem 0.75rem',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.75em',
+                                    fontWeight: '500',
+                                    transition: 'all 0.2s',
+                                    width: '100%'
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.25)`}
+                                onMouseLeave={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.15)`}
+                            >
+                                ▶ View {entry.submissionCount} Reports
+                            </button>
                         ) : (
                             <a 
                                 href={entry.submissions[0].link}
@@ -1207,6 +1290,7 @@
                         )}
                     </div>
                 </div>
+            </>
             );
         }
 
