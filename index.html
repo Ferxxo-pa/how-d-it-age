@@ -431,6 +431,14 @@
             font-weight: 700;
         }
 
+        .perf-cell.positive {
+            color: #10b981;
+        }
+
+        .perf-cell.negative {
+            color: #ef4444;
+        }
+
         .school-cell {
             color: var(--muted-foreground);
         }
@@ -656,7 +664,7 @@
             });
         }
 
-        function transformData(csvData) {
+        function transformData(csvData, isLong = true) {
             // First, transform all the data
             const transformed = csvData.map((row) => {
                 const pdfLink = row.PDF || row.pdf || '#';
@@ -699,8 +707,16 @@
             });
 
             // Convert to array and sort by performance
+            // Long: highest to lowest (b - a)
+            // Short: lowest to highest (a - b) - most negative first
             const groupedArray = Object.values(grouped);
-            groupedArray.sort((a, b) => b.percentage - a.percentage);
+            groupedArray.sort((a, b) => {
+                if (isLong) {
+                    return b.percentage - a.percentage; // Descending for longs
+                } else {
+                    return a.percentage - b.percentage; // Ascending for shorts (most negative first)
+                }
+            });
 
             // Assign ranks with ties
             let currentRank = 1;
@@ -884,8 +900,8 @@
                     }
                     
                     console.log('Parsing CSV data...');
-                    const longParsed = transformData(parseCSV(longText));
-                    const shortParsed = transformData(parseCSV(shortText));
+                    const longParsed = transformData(parseCSV(longText), true);
+                    const shortParsed = transformData(parseCSV(shortText), false);
                     
                     console.log(`Loaded ${longParsed.length} long positions, ${shortParsed.length} short positions`);
                     
@@ -1082,7 +1098,7 @@
                     
                     <div className="stats-card">
                         <div className="asset-name">{entry.asset}</div>
-                        <div className={`percentage ${entry.percentage >= 0 ? 'positive' : 'negative'}`}>
+                        <div className={`percentage`} style={{color: entry.percentage >= 0 ? '#10b981' : '#ef4444'}}>
                             {entry.percentage >= 0 ? '↗' : '↘'} {Math.abs(entry.percentage).toFixed(2)}%
                         </div>
                         <div className="school-name" style={{fontSize: '0.8em', marginTop: '0.25rem'}}>
