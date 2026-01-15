@@ -657,27 +657,176 @@
         }
 
         function transformData(csvData) {
-            return csvData.map((row) => {
-                // Get PDF link directly from CSV's PDF column
+            // First, transform all the data
+            const transformed = csvData.map((row) => {
                 const pdfLink = row.PDF || row.pdf || '#';
                 const percentage = parseFloat((row['Actual %'] || '0').replace('%', ''));
                 const isWinner = row.Winner === 'TRUE';
                 const bestNum = parseInt(row.Best || '0');
                 const submissionId = `SUB_${String(bestNum).padStart(3, '0')}`;
-                const rank = parseInt(row.Rank || '0'); // Use actual Rank from CSV
                 
                 return {
-                    rank: rank, // Use rank from CSV, not array index
                     asset: row.Asset || '',
                     percentage,
                     school: row.University || 'Unknown',
                     author: row.Title || 'Unknown',
-                    link: pdfLink, // Use PDF link directly from CSV
+                    link: pdfLink,
                     isWinner,
                     submissionId,
                     logo: getCoinLogo(row.Asset || '')
                 };
             });
+
+            // Group by asset and percentage (same asset = same performance)
+            const grouped = {};
+            transformed.forEach(entry => {
+                const key = entry.asset;
+                if (!grouped[key]) {
+                    grouped[key] = {
+                        asset: entry.asset,
+                        percentage: entry.percentage,
+                        logo: entry.logo,
+                        submissions: []
+                    };
+                }
+                grouped[key].submissions.push({
+                    school: entry.school,
+                    author: entry.author,
+                    link: entry.link,
+                    isWinner: entry.isWinner,
+                    submissionId: entry.submissionId
+                });
+            });
+
+            // Convert to array and sort by performance
+            const groupedArray = Object.values(grouped);
+            groupedArray.sort((a, b) => b.percentage - a.percentage);
+
+            // Assign ranks with ties
+            let currentRank = 1;
+            groupedArray.forEach((entry, index) => {
+                entry.rank = currentRank;
+                currentRank++;
+                
+                // Add schools list and count
+                entry.schools = [...new Set(entry.submissions.map(s => s.school))];
+                entry.schoolCount = entry.schools.length;
+                entry.submissionCount = entry.submissions.length;
+                
+                // Sort submissions - winners first
+                entry.submissions.sort((a, b) => {
+                    if (a.isWinner && !b.isWinner) return -1;
+                    if (!a.isWinner && b.isWinner) return 1;
+                    return 0;
+                });
+            });
+
+            return groupedArray;
+        }
+
+        function SubmissionRow({ entry, isExpanded, onToggle }) {
+            const hasMultiple = entry.submissionCount > 1;
+            const assetKey = `${entry.asset}-${entry.rank}`;
+            
+            return (
+                <>
+                    <tr className={entry.submissions.some(s => s.isWinner) ? 'winner' : ''}>
+                        <td className="rank-cell">
+                            {String(entry.rank).padStart(2, '0')}
+                        </td>
+                        <td>
+                            <div className="asset-cell">
+                                <div className="asset-indicator"></div>
+                                <img src={entry.logo} className="coin-logo" alt={entry.asset} />
+                                <span>{entry.asset}</span>
+                            </div>
+                        </td>
+                        <td className={`perf-cell ${entry.percentage >= 0 ? 'positive' : 'negative'}`}>
+                            {entry.percentage > 0 ? '+' : ''}{entry.percentage.toFixed(2)}%
+                        </td>
+                        <td className="school-cell">
+                            {hasMultiple ? (
+                                <span style={{fontSize: '0.85em', color: 'var(--muted-foreground)'}}>
+                                    {entry.schools.slice(0, 2).join(', ')}
+                                    {entry.schools.length > 2 && ` +${entry.schools.length - 2} more`}
+                                </span>
+                            ) : (
+                                entry.submissions[0].school
+                            )}
+                        </td>
+                        <td className="school-cell" style={{maxWidth: '200px'}}>
+                            {hasMultiple ? (
+                                <button 
+                                    onClick={() => onToggle(assetKey)}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: 'var(--primary)',
+                                        cursor: 'pointer',
+                                        fontSize: '0.9em',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        padding: '0.25rem 0.5rem',
+                                        borderRadius: '4px',
+                                        transition: 'background-color 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(139, 92, 246, 0.1)'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                >
+                                    <span>{isExpanded ? '▼' : '▶'}</span>
+                                    <span>{entry.submissionCount} submissions</span>
+                                </button>
+                            ) : (
+                                entry.submissions[0].author
+                            )}
+                        </td>
+                        <td className="link-cell">
+                            {hasMultiple ? (
+                                <span style={{color: 'var(--muted-foreground)', fontSize: '0.85em'}}>
+                                    {isExpanded ? '↓' : '→'}
+                                </span>
+                            ) : (
+                                <a 
+                                    href={entry.submissions[0].link} 
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="link-btn"
+                                >
+                                    →
+                                </a>
+                            )}
+                        </td>
+                    </tr>
+                    {hasMultiple && isExpanded && entry.submissions.map((sub, idx) => (
+                        <tr key={`${assetKey}-sub-${idx}`} style={{backgroundColor: 'rgba(139, 92, 246, 0.05)'}}>
+                            <td></td>
+                            <td colSpan={2} style={{paddingLeft: '3rem'}}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9em'}}>
+                                    {sub.isWinner && <span>👑</span>}
+                                    <span style={{color: 'var(--muted-foreground)'}}>
+                                        {sub.submissionId}
+                                    </span>
+                                </div>
+                            </td>
+                            <td className="school-cell">{sub.school}</td>
+                            <td className="school-cell" style={{maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                                {sub.author}
+                            </td>
+                            <td className="link-cell">
+                                <a 
+                                    href={sub.link} 
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="link-btn"
+                                >
+                                    →
+                                </a>
+                            </td>
+                        </tr>
+                    ))}
+                </>
+            );
         }
 
         function App() {
@@ -688,6 +837,14 @@
             const [lastUpdated, setLastUpdated] = useState(null);
             const [refreshing, setRefreshing] = useState(false);
             const [error, setError] = useState(null);
+            const [expandedRows, setExpandedRows] = useState({});
+
+            const toggleRow = (assetKey) => {
+                setExpandedRows(prev => ({
+                    ...prev,
+                    [assetKey]: !prev[assetKey]
+                }));
+            };
 
             async function loadData() {
                 setRefreshing(true);
@@ -858,43 +1015,12 @@
                                     </tr>
                                 ) : (
                                     rest.map((entry, idx) => (
-                                        <tr key={`${entry.rank}-${idx}`} className={entry.isWinner ? 'winner' : ''}>
-                                            <td className="rank-cell">
-                                                {String(entry.rank).padStart(2, '0')}
-                                            </td>
-                                            <td>
-                                                <div className="asset-cell">
-                                                    <div className="asset-indicator"></div>
-                                                    <img src={entry.logo} className="coin-logo" alt={entry.asset} />
-                                                    <span>{entry.asset}</span>
-                                                    {entry.isWinner && (
-                                                        <span className="crown">
-                                                            👑
-                                                            <span className="crown-tooltip">
-                                                                Finalist @ MBC Research Comp
-                                                            </span>
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className={`perf-cell ${entry.percentage >= 0 ? 'positive' : 'negative'}`}>
-                                                {entry.percentage > 0 ? '+' : ''}{entry.percentage.toFixed(2)}%
-                                            </td>
-                                            <td className="school-cell">{entry.school}</td>
-                                            <td className="school-cell" style={{maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
-                                                {entry.author}
-                                            </td>
-                                            <td className="link-cell">
-                                                <a 
-                                                    href={entry.link} 
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="link-btn"
-                                                >
-                                                    →
-                                                </a>
-                                            </td>
-                                        </tr>
+                                        <SubmissionRow 
+                                            key={`${entry.asset}-${entry.rank}`}
+                                            entry={entry}
+                                            isExpanded={expandedRows[`${entry.asset}-${entry.rank}`] || false}
+                                            onToggle={toggleRow}
+                                        />
                                     ))
                                 )}
                             </tbody>
@@ -909,9 +1035,11 @@
         }
 
         function PodiumEntry({ entry, rank }) {
+            const [showDropdown, setShowDropdown] = useState(false);
             const isFirst = rank === 1;
             const classes = `podium-entry ${isFirst ? 'first' : rank === 2 ? 'second' : 'third'}`;
             const medal = getPodiumEmoji(rank);
+            const hasMultiple = entry.submissionCount > 1;
             
             return (
                 <div className={classes}>
@@ -948,7 +1076,110 @@
                         <div className={`percentage ${entry.percentage >= 0 ? 'positive' : 'negative'}`}>
                             {entry.percentage >= 0 ? '↗' : '↘'} {Math.abs(entry.percentage).toFixed(2)}%
                         </div>
-                        <div className="school-name">{entry.school}</div>
+                        <div className="school-name" style={{fontSize: '0.8em', marginTop: '0.25rem'}}>
+                            {hasMultiple ? (
+                                entry.schools.slice(0, 2).join(', ') + (entry.schools.length > 2 ? ` +${entry.schools.length - 2}` : '')
+                            ) : (
+                                entry.submissions[0].school
+                            )}
+                        </div>
+                        {hasMultiple ? (
+                            <div style={{position: 'relative', marginTop: '0.5rem'}}>
+                                <button 
+                                    onClick={() => setShowDropdown(!showDropdown)}
+                                    style={{
+                                        background: 'rgba(139, 92, 246, 0.2)',
+                                        border: '1px solid rgba(139, 92, 246, 0.4)',
+                                        color: 'var(--primary)',
+                                        padding: '0.35rem 0.75rem',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        fontSize: '0.75em',
+                                        fontWeight: '500',
+                                        transition: 'all 0.2s',
+                                        width: '100%'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.background = 'rgba(139, 92, 246, 0.3)'}
+                                    onMouseLeave={(e) => e.target.style.background = 'rgba(139, 92, 246, 0.2)'}
+                                >
+                                    {showDropdown ? '▼' : '▶'} View {entry.submissionCount} Reports
+                                </button>
+                                {showDropdown && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '100%',
+                                        left: '0',
+                                        right: '0',
+                                        marginTop: '0.5rem',
+                                        background: 'var(--card)',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '8px',
+                                        padding: '0.5rem',
+                                        zIndex: 1000,
+                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                                        maxHeight: '200px',
+                                        overflowY: 'auto'
+                                    }}>
+                                        {entry.submissions.map((sub, idx) => (
+                                            <a 
+                                                key={idx}
+                                                href={sub.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    padding: '0.5rem',
+                                                    borderRadius: '4px',
+                                                    textDecoration: 'none',
+                                                    color: 'var(--foreground)',
+                                                    fontSize: '0.75em',
+                                                    marginBottom: '0.25rem',
+                                                    transition: 'background-color 0.2s'
+                                                }}
+                                                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(139, 92, 246, 0.1)'}
+                                                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                            >
+                                                <div style={{display: 'flex', flexDirection: 'column', gap: '0.15rem', flex: 1}}>
+                                                    <div style={{display: 'flex', alignItems: 'center', gap: '0.35rem'}}>
+                                                        {sub.isWinner && <span>👑</span>}
+                                                        <span style={{fontWeight: '500'}}>{sub.school}</span>
+                                                    </div>
+                                                    <span style={{color: 'var(--muted-foreground)', fontSize: '0.9em'}}>
+                                                        {sub.author}
+                                                    </span>
+                                                </div>
+                                                <span style={{color: 'var(--primary)'}}>→</span>
+                                            </a>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <a 
+                                href={entry.submissions[0].link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                    display: 'inline-block',
+                                    marginTop: '0.5rem',
+                                    background: 'rgba(139, 92, 246, 0.2)',
+                                    border: '1px solid rgba(139, 92, 246, 0.4)',
+                                    color: 'var(--primary)',
+                                    padding: '0.35rem 0.75rem',
+                                    borderRadius: '6px',
+                                    textDecoration: 'none',
+                                    fontSize: '0.75em',
+                                    fontWeight: '500',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = 'rgba(139, 92, 246, 0.3)'}
+                                onMouseLeave={(e) => e.target.style.background = 'rgba(139, 92, 246, 0.2)'}
+                            >
+                                View Report →
+                            </a>
+                        )}
                     </div>
                 </div>
             );
