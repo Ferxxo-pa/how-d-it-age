@@ -737,8 +737,15 @@
                         <td>
                             <div className="asset-cell">
                                 <div className="asset-indicator"></div>
-                                <img src={entry.logo} className="coin-logo" alt={entry.asset} />
                                 <span>{entry.asset}</span>
+                                {entry.submissions.some(s => s.isWinner) && !hasMultiple && (
+                                    <span className="crown">
+                                        👑
+                                        <span className="crown-tooltip">
+                                            Finalist @ MBC Research Comp
+                                        </span>
+                                    </span>
+                                )}
                             </div>
                         </td>
                         <td className={`perf-cell ${entry.percentage >= 0 ? 'positive' : 'negative'}`}>
@@ -771,7 +778,7 @@
                                         borderRadius: '4px',
                                         transition: 'background-color 0.2s'
                                     }}
-                                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(139, 92, 246, 0.1)'}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(16, 185, 129, 0.1)'}
                                     onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                                 >
                                     <span>{isExpanded ? '▼' : '▶'}</span>
@@ -799,14 +806,11 @@
                         </td>
                     </tr>
                     {hasMultiple && isExpanded && entry.submissions.map((sub, idx) => (
-                        <tr key={`${assetKey}-sub-${idx}`} style={{backgroundColor: 'rgba(139, 92, 246, 0.05)'}}>
+                        <tr key={`${assetKey}-sub-${idx}`} style={{backgroundColor: 'rgba(16, 185, 129, 0.05)'}}>
                             <td></td>
                             <td colSpan={2} style={{paddingLeft: '3rem'}}>
                                 <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9em'}}>
                                     {sub.isWinner && <span>👑</span>}
-                                    <span style={{color: 'var(--muted-foreground)'}}>
-                                        {sub.submissionId}
-                                    </span>
                                 </div>
                             </td>
                             <td className="school-cell">{sub.school}</td>
@@ -1088,9 +1092,9 @@
                                 <button 
                                     onClick={() => setShowDropdown(!showDropdown)}
                                     style={{
-                                        background: 'rgba(139, 92, 246, 0.2)',
-                                        border: '1px solid rgba(139, 92, 246, 0.4)',
-                                        color: 'var(--primary)',
+                                        background: 'rgba(16, 185, 129, 0.15)',
+                                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                                        color: '#10b981',
                                         padding: '0.35rem 0.75rem',
                                         borderRadius: '6px',
                                         cursor: 'pointer',
@@ -1099,8 +1103,8 @@
                                         transition: 'all 0.2s',
                                         width: '100%'
                                     }}
-                                    onMouseEnter={(e) => e.target.style.background = 'rgba(139, 92, 246, 0.3)'}
-                                    onMouseLeave={(e) => e.target.style.background = 'rgba(139, 92, 246, 0.2)'}
+                                    onMouseEnter={(e) => e.target.style.background = 'rgba(16, 185, 129, 0.25)'}
+                                    onMouseLeave={(e) => e.target.style.background = 'rgba(16, 185, 129, 0.15)'}
                                 >
                                     {showDropdown ? '▼' : '▶'} View {entry.submissionCount} Reports
                                 </button>
@@ -1138,7 +1142,7 @@
                                                     marginBottom: '0.25rem',
                                                     transition: 'background-color 0.2s'
                                                 }}
-                                                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(139, 92, 246, 0.1)'}
+                                                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(16, 185, 129, 0.1)'}
                                                 onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                                             >
                                                 <div style={{display: 'flex', flexDirection: 'column', gap: '0.15rem', flex: 1}}>
@@ -1150,7 +1154,7 @@
                                                         {sub.author}
                                                     </span>
                                                 </div>
-                                                <span style={{color: 'var(--primary)'}}>→</span>
+                                                <span style={{color: '#10b981'}}>→</span>
                                             </a>
                                         ))}
                                     </div>
@@ -1164,9 +1168,9 @@
                                 style={{
                                     display: 'inline-block',
                                     marginTop: '0.5rem',
-                                    background: 'rgba(139, 92, 246, 0.2)',
-                                    border: '1px solid rgba(139, 92, 246, 0.4)',
-                                    color: 'var(--primary)',
+                                    background: 'rgba(16, 185, 129, 0.15)',
+                                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                                    color: '#10b981',
                                     padding: '0.35rem 0.75rem',
                                     borderRadius: '6px',
                                     textDecoration: 'none',
@@ -1174,8 +1178,8 @@
                                     fontWeight: '500',
                                     transition: 'all 0.2s'
                                 }}
-                                onMouseEnter={(e) => e.target.style.background = 'rgba(139, 92, 246, 0.3)'}
-                                onMouseLeave={(e) => e.target.style.background = 'rgba(139, 92, 246, 0.2)'}
+                                onMouseEnter={(e) => e.target.style.background = 'rgba(16, 185, 129, 0.25)'}
+                                onMouseLeave={(e) => e.target.style.background = 'rgba(16, 185, 129, 0.15)'}
                             >
                                 View Report →
                             </a>
