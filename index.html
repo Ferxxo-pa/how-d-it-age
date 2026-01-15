@@ -542,8 +542,9 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // YOUR GOOGLE SHEETS CSV URL - REPLACE THIS!
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSvRYuG_XvgF2gk3BgFnUJxZH_qN6v0qg3aUHdlhvl8w9Yt9j39n2FqRZZxU5Z0iYw8aYzLxdGRFbAc/pub?gid=0&single=true&output=csv';
+        // GOOGLE SHEETS CSV URLS - Connected to your live data!
+        const LONG_TRACK_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwiSq0rO__eFrgG3T-F63wg490m1OabiZsn3MHpCqIpRYz7oqbcImIvVfblW50Yl_toIW0mhxgaalF/pub?gid=1519177189&single=true&output=csv';
+        const SHORT_TRACK_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwiSq0rO__eFrgG3T-F63wg490m1OabiZsn3MHpCqIpRYz7oqbcImIvVfblW50Yl_toIW0mhxgaalF/pub?gid=2031650567&single=true&output=csv';
 
         // ALL 57 PDF LINKS MAPPED TO SUBMISSION IDs
         const PDF_LINKS = {
@@ -712,7 +713,8 @@
 
         function App() {
             const [isLong, setIsLong] = useState(true);
-            const [data, setData] = useState([]);
+            const [longData, setLongData] = useState([]);
+            const [shortData, setShortData] = useState([]);
             const [loading, setLoading] = useState(true);
             const [lastUpdated, setLastUpdated] = useState(null);
             const [refreshing, setRefreshing] = useState(false);
@@ -723,12 +725,19 @@
                     console.log('Fetching data...');
                     
                     const corsProxy = 'https://corsproxy.io/?';
-                    const res = await fetch(corsProxy + encodeURIComponent(CSV_URL));
-                    const text = await res.text();
                     
-                    const parsed = transformData(parseCSV(text));
+                    // Fetch Long Track
+                    const longRes = await fetch(corsProxy + encodeURIComponent(LONG_TRACK_CSV));
+                    const longText = await longRes.text();
+                    const longParsed = transformData(parseCSV(longText));
                     
-                    setData(parsed);
+                    // Fetch Short Track
+                    const shortRes = await fetch(corsProxy + encodeURIComponent(SHORT_TRACK_CSV));
+                    const shortText = await shortRes.text();
+                    const shortParsed = transformData(parseCSV(shortText));
+                    
+                    setLongData(longParsed);
+                    setShortData(shortParsed);
                     setLastUpdated(new Date());
                     setLoading(false);
                 } catch (error) {
@@ -745,6 +754,7 @@
                 return () => clearInterval(interval);
             }, []);
 
+            const data = isLong ? longData : shortData;
             const top3 = data.slice(0, 3);
             const rest = data.slice(3);
             const showRefreshButton = lastUpdated && !isToday(lastUpdated);
