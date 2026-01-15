@@ -1,870 +1,718 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>How'd It Age? - MBC Research Competition</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
-    
-    <!-- React & ReactDOM from CDN -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --background: #000000;
-            --foreground: #FFFFFF;
-            --primary: #FBB040;
-            --destructive: #FF3B30;
-            --border: #27272A;
-            --muted-foreground: #52525B;
-            --secondary: #1A1A1A;
-        }
-
-        body {
-            font-family: 'JetBrains Mono', monospace;
-            background: #000000;
-            color: #FFFFFF;
-            background-image: 
-                linear-gradient(rgba(251, 176, 64, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(251, 176, 64, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            gap: 2rem;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 2rem;
-            margin-bottom: 3rem;
-            flex-wrap: wrap;
-        }
-
-        h1 {
-            font-size: 4rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: -0.05em;
-        }
-
-        .text-glow {
-            color: var(--primary);
-            text-shadow: 0 0 10px rgba(251, 176, 64, 0.5);
-        }
-
-        .subtitle {
-            color: var(--muted-foreground);
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
-        }
-
-        /* Header Right */
-        .header-right {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 0.75rem;
-        }
-
-        .last-updated {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.75rem;
-        }
-
-        .last-updated-text {
-            color: var(--muted-foreground);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .last-updated-date {
-            color: var(--primary);
-            font-weight: 700;
-        }
-
-        .refresh-btn {
-            padding: 0.35rem 0.75rem;
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
-        .refresh-btn:hover {
-            background: var(--primary);
-            color: #000;
-            box-shadow: 0 0 10px rgba(251, 176, 64, 0.3);
-        }
-
-        .refresh-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .refresh-icon {
-            font-size: 0.9rem;
-        }
-
-        .refresh-btn:hover .refresh-icon {
-            animation: spin 0.5s linear;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Toggle */
-        .toggle-container {
-            display: flex;
-            background: rgba(26, 26, 26, 0.5);
-            padding: 4px;
-            border: 1px solid var(--border);
-        }
-
-        .toggle-btn {
-            padding: 0.5rem 1.5rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.875rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            background: transparent;
-            border: none;
-            color: var(--muted-foreground);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .toggle-btn.active.long {
-            background: var(--primary);
-            color: #000000;
-            box-shadow: 0 0 15px rgba(251, 176, 64, 0.4);
-        }
-
-        .toggle-btn.active.short {
-            background: var(--destructive);
-            color: #FFFFFF;
-            box-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
-        }
-
-        .toggle-btn:hover:not(.active) {
-            color: var(--foreground);
-        }
-
-        /* Podium */
-        .podium {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            align-items: flex-end;
-            min-height: 400px;
-            padding: 0 3rem;
-            margin-bottom: 3rem;
-        }
-
-        .podium-entry {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            opacity: 0.8;
-            transition: all 0.3s;
-        }
-
-        .podium-entry:hover {
-            opacity: 1;
-        }
-
-        .podium-entry.first {
-            transform: scale(1.1);
-            opacity: 1;
-        }
-
-        .podium-entry.second { order: 1; }
-        .podium-entry.first { order: 2; margin-top: -3rem; }
-        .podium-entry.third { order: 3; }
-
-        .avatar-container {
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-
-        .rank-badge {
-            position: absolute;
-            top: -1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 0.25rem 0.75rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            border: 1px solid var(--muted-foreground);
-            background: var(--background);
-            z-index: 20;
-        }
-
-        .rank-badge.first {
-            border-color: var(--primary);
-            color: var(--primary);
-            box-shadow: 0 0 10px rgba(251, 176, 64, 0.3);
-        }
-
-        .avatar {
-            width: 128px;
-            height: 128px;
-            border: 2px solid var(--muted-foreground);
-            background: #000;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-        }
-
-        .avatar.first {
-            width: 160px;
-            height: 160px;
-            border-color: var(--primary);
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s;
-        }
-
-        .avatar:hover img {
-            transform: scale(1.05);
-        }
-
-        .stats-card {
-            width: 100%;
-            padding: 1rem;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(251, 176, 64, 0.3);
-            position: relative;
-        }
-
-        .stats-card::before,
-        .stats-card::after {
-            content: '';
-            position: absolute;
-            width: 10px;
-            height: 10px;
-        }
-
-        .stats-card::before {
-            top: -1px;
-            left: -1px;
-            border-top: 2px solid var(--primary);
-            border-left: 2px solid var(--primary);
-        }
-
-        .stats-card::after {
-            bottom: -1px;
-            right: -1px;
-            border-bottom: 2px solid var(--primary);
-            border-right: 2px solid var(--primary);
-        }
-
-        .asset-name {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .percentage {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-        }
-
-        .percentage.positive { color: #22c55e; }
-        .percentage.negative { color: #ef4444; }
-
-        .school-name {
-            font-size: 0.625rem;
-            color: rgba(251, 176, 64, 0.8);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        /* Table */
-        .table-container {
-            border: 1px solid var(--border);
-            background: rgba(10, 10, 10, 0.5);
-            backdrop-filter: blur(8px);
-        }
-
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-            background: rgba(26, 26, 26, 0.2);
-        }
-
-        .table-title {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 700;
-            color: var(--muted-foreground);
-        }
-
-        .status-dots {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .dot {
-            width: 8px;
-            height: 8px;
-            background: var(--border);
-        }
-
-        .dot.active {
-            background: var(--primary);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid rgba(39, 39, 42, 0.5);
-        }
-
-        th {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--muted-foreground);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        tbody tr {
-            transition: background 0.2s;
-        }
-
-        tbody tr:hover {
-            background: rgba(26, 26, 26, 0.4);
-        }
-
-        tbody tr.winner {
-            background: rgba(251, 176, 64, 0.05);
-        }
-
-        .rank-cell {
-            color: var(--muted-foreground);
-            font-weight: 700;
-        }
-
-        .asset-cell {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 700;
-        }
-
-        .asset-indicator {
-            width: 4px;
-            height: 16px;
-            background: rgba(251, 176, 64, 0.5);
-            transition: background 0.2s;
-        }
-
-        tr:hover .asset-indicator {
-            background: var(--primary);
-        }
-
-        .perf-cell {
-            text-align: right;
-            font-weight: 700;
-        }
-
-        .school-cell {
-            color: var(--muted-foreground);
-        }
-
-        .link-cell {
-            text-align: center;
-        }
-
-        .link-btn {
-            color: var(--muted-foreground);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .link-btn:hover {
-            color: var(--primary);
-        }
-
-        /* Crown Tooltip */
-        .crown {
-            display: inline-flex;
-            align-items: center;
-            margin-left: 0.5rem;
-            font-size: 1.2rem;
-            cursor: help;
-            position: relative;
-        }
-
-        .crown-tooltip {
-            position: absolute;
-            bottom: 120%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--primary);
-            color: #000;
-            padding: 0.5rem 0.75rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s;
-            z-index: 1000;
-            font-weight: 700;
-        }
-
-        .crown-tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top-color: var(--primary);
-        }
-
-        .crown:hover .crown-tooltip {
-            opacity: 1;
-        }
-
-        /* Attribution */
-        .attribution {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: var(--muted-foreground);
-            font-size: 0.75rem;
-            opacity: 0.6;
-        }
-
-        .attribution a {
-            color: var(--muted-foreground);
-            text-decoration: underline;
-            transition: color 0.2s;
-        }
-
-        .attribution a:hover {
-            color: var(--primary);
-        }
-
-        /* Loading */
-        .loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            gap: 1rem;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid var(--border);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            .header { flex-direction: column; align-items: flex-start; }
-            .podium { grid-template-columns: 1fr; padding: 0 1rem; }
-            .podium-entry.first { margin-top: 0; }
-            table { font-size: 0.875rem; }
-            th, td { padding: 0.75rem 0.5rem; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How'd It Age? - MBC Research Competition</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
+
+  <!-- React & ReactDOM from CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --background: #000000;
+      --foreground: #FFFFFF;
+      --primary: #FBB040;
+      --destructive: #FF3B30;
+      --border: #27272A;
+      --muted-foreground: #52525B;
+      --secondary: #1A1A1A;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: #000000;
+      color: #FFFFFF;
+      background-image:
+        linear-gradient(rgba(251, 176, 64, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(251, 176, 64, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: 4rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.05em;
+    }
+
+    .text-glow { color: var(--primary); text-shadow: 0 0 10px rgba(251, 176, 64, 0.5); }
+
+    .subtitle { color: var(--muted-foreground); font-size: 0.875rem; margin-top: 0.5rem; }
+
+    .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; }
+
+    .last-updated { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; flex-wrap: wrap; justify-content: flex-end; }
+
+    .last-updated-text { color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .last-updated-date { color: var(--primary); font-weight: 700; }
+
+    .refresh-btn {
+      padding: 0.35rem 0.75rem;
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .refresh-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 10px rgba(251, 176, 64, 0.3); }
+    .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .refresh-icon { font-size: 0.9rem; }
+    .refresh-btn:hover .refresh-icon { animation: spin 0.5s linear; }
+
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .toggle-container { display: flex; background: rgba(26, 26, 26, 0.5); padding: 4px; border: 1px solid var(--border); }
+
+    .toggle-btn {
+      padding: 0.5rem 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: transparent;
+      border: none;
+      color: var(--muted-foreground);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .toggle-btn.active.long { background: var(--primary); color: #000000; box-shadow: 0 0 15px rgba(251, 176, 64, 0.4); }
+    .toggle-btn.active.short { background: var(--destructive); color: #FFFFFF; box-shadow: 0 0 15px rgba(255, 59, 48, 0.4); }
+    .toggle-btn:hover:not(.active) { color: var(--foreground); }
+
+    .podium {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      align-items: flex-end;
+      min-height: 400px;
+      padding: 0 3rem;
+      margin-bottom: 3rem;
+    }
+
+    .podium-entry { display: flex; flex-direction: column; align-items: center; opacity: 0.8; transition: all 0.3s; }
+    .podium-entry:hover { opacity: 1; }
+    .podium-entry.first { transform: scale(1.1); opacity: 1; }
+    .podium-entry.second { order: 1; }
+    .podium-entry.first { order: 2; margin-top: -3rem; }
+    .podium-entry.third { order: 3; }
+
+    .avatar-container { position: relative; margin-bottom: 1.5rem; }
+
+    .rank-badge {
+      position: absolute;
+      top: -1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px solid var(--muted-foreground);
+      background: var(--background);
+      z-index: 20;
+    }
+
+    .rank-badge.first { border-color: var(--primary); color: var(--primary); box-shadow: 0 0 10px rgba(251, 176, 64, 0.3); }
+
+    .avatar {
+      width: 128px;
+      height: 128px;
+      border: 2px solid var(--muted-foreground);
+      background: #000;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .avatar.first { width: 160px; height: 160px; border-color: var(--primary); }
+
+    .stats-card {
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(251, 176, 64, 0.3);
+      position: relative;
+    }
+
+    .stats-card::before, .stats-card::after { content: ''; position: absolute; width: 10px; height: 10px; }
+    .stats-card::before { top: -1px; left: -1px; border-top: 2px solid var(--primary); border-left: 2px solid var(--primary); }
+    .stats-card::after { bottom: -1px; right: -1px; border-bottom: 2px solid var(--primary); border-right: 2px solid var(--primary); }
+
+    .asset-name { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .percentage { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .percentage.positive { color: #22c55e; }
+    .percentage.negative { color: #ef4444; }
+    .school-name { font-size: 0.625rem; color: rgba(251, 176, 64, 0.8); text-transform: uppercase; letter-spacing: 0.1em; }
+
+    .table-container { border: 1px solid var(--border); background: rgba(10, 10, 10, 0.5); backdrop-filter: blur(8px); }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(26, 26, 26, 0.2);
+    }
+
+    .table-title { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 700; color: var(--muted-foreground); }
+
+    .status-dots { display: flex; gap: 0.5rem; }
+    .dot { width: 8px; height: 8px; background: var(--border); }
+    .dot.active { background: var(--primary); animation: pulse 2s infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(39, 39, 42, 0.5); }
+    th { font-size: 0.75rem; font-weight: 700; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    tbody tr { transition: background 0.2s; }
+    tbody tr:hover { background: rgba(26, 26, 26, 0.4); }
+    tbody tr.winner { background: rgba(251, 176, 64, 0.05); }
+
+    .rank-cell { color: var(--muted-foreground); font-weight: 700; }
+
+    .asset-cell { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; }
+    .asset-indicator { width: 4px; height: 16px; background: rgba(251, 176, 64, 0.5); transition: background 0.2s; }
+    tr:hover .asset-indicator { background: var(--primary); }
+
+    .perf-cell { text-align: right; font-weight: 700; }
+    .school-cell { color: var(--muted-foreground); }
+    .link-cell { text-align: center; }
+
+    .link-btn { color: var(--muted-foreground); text-decoration: none; transition: color 0.2s; }
+    .link-btn:hover { color: var(--primary); }
+
+    .crown { display: inline-flex; align-items: center; margin-left: 0.5rem; font-size: 1.2rem; cursor: help; position: relative; }
+
+    .crown-tooltip {
+      position: absolute;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary);
+      color: #000;
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 1000;
+      font-weight: 700;
+    }
+
+    .crown-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: var(--primary);
+    }
+
+    .crown:hover .crown-tooltip { opacity: 1; }
+
+    .attribution { text-align: center; margin-top: 1.5rem; color: var(--muted-foreground); font-size: 0.75rem; opacity: 0.6; }
+    .attribution a { color: var(--muted-foreground); text-decoration: underline; transition: color 0.2s; }
+    .attribution a:hover { color: var(--primary); }
+
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 1rem;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2rem; }
+      .header { flex-direction: column; align-items: flex-start; }
+      .header-right { align-items: flex-start; }
+      .podium { grid-template-columns: 1fr; padding: 0 1rem; }
+      .podium-entry.first { margin-top: 0; }
+      table { font-size: 0.875rem; }
+      th, td { padding: 0.75rem 0.5rem; }
+    }
+  </style>
 </head>
+
 <body>
-    <div id="root"></div>
+  <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-        // ===== YOUR GOOGLE SHEETS CSV URLS =====
-        // REPLACE THESE WITH YOUR PUBLISHED CSV URLS
-        const LONG_TRACK_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwiSq0rO__eFrgG3T-F63wg490m1OabiZsn3MHpCqIpRYz7oqbcImIvVfblW50Yl_toIW0mhxgaalF/pub?gid=1519177189&single=true&output=csv ';
-        const SHORT_TRACK_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwiSq0rO__eFrgG3T-F63wg490m1OabiZsn3MHpCqIpRYz7oqbcImIvVfblW50Yl_toIW0mhxgaalF/pub?gid=2031650567&single=true&output=csv';
+    // ===== YOUR GOOGLE SHEETS CSV URLS =====
+    // IMPORTANT: no trailing spaces
+    const LONG_TRACK_CSV =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwiSq0rO__eFrgG3T-F63wg490m1OabiZsn3MHpCqIpRYz7oqbcImIvVfblW50Yl_toIW0mhxgaalF/pub?gid=1519177189&single=true&output=csv";
 
-        // ===== YOUR PDF LINKS =====
-        const PDF_LINKS = {
-            'SUB_002': 'https://drive.google.com/file/d/1-pdWKczZsQynBN7VKE0lGk1FitqYXlEa/preview',
-            'SUB_003': 'https://drive.google.com/file/d/1R1uEWvNYje3YNn6jyzwgV90tW1euCJht/preview',
-            'SUB_004': 'https://drive.google.com/file/d/1JKXqkbGMWnIRqUiZhsigRWccucOekEGh/preview',
-            'SUB_005': 'https://drive.google.com/file/d/1SRjPyBxruR7f3wDpRV10SRDnE8ESVXsu/view',
-            'SUB_006': 'https://drive.google.com/file/d/1W81eMV1dBJQ7N-gV_4ee0n0uxl29zjG2/preview',
-            'SUB_007': 'https://drive.google.com/file/d/1qChRkeINuqWnEccJA-ibb962MjdzDK3b/',
-            'SUB_008': 'https://drive.google.com/file/d/1zxCl242ISrKKtH2DJoUy4ey_UI38ItY7/preview',
-            'SUB_009': 'https://drive.google.com/file/d/1DEjqQgjvlPzq4z5sXPBWyOZ_uKHbOdyx/preview',
-            'SUB_010': 'https://drive.google.com/file/d/19JruptP14qmRgaYJq3sLXh-utKnxBwli/',
-            'SUB_011': 'https://drive.google.com/file/d/1N6rHb0YwN-wX23GgDzMk9uyQB73J7Np7/view',
-            'SUB_012': 'https://drive.google.com/file/d/1Xs-2huJgnVYvtph_1qtzZMF8DQWUBWCw/preview',
+    const SHORT_TRACK_CSV =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwiSq0rO__eFrgG3T-F63wg490m1OabiZsn3MHpCqIpRYz7oqbcImIvVfblW50Yl_toIW0mhxgaalF/pub?gid=2031650567&single=true&output=csv";
+
+    // ===== YOUR PDF LINKS =====
+    const PDF_LINKS = {
+      SUB_002: "https://drive.google.com/file/d/1-pdWKczZsQynBN7VKE0lGk1FitqYXlEa/preview",
+      SUB_003: "https://drive.google.com/file/d/1R1uEWvNYje3YNn6jyzwgV90tW1euCJht/preview",
+      SUB_004: "https://drive.google.com/file/d/1JKXqkbGMWnIRqUiZhsigRWccucOekEGh/preview",
+      SUB_005: "https://drive.google.com/file/d/1SRjPyBxruR7f3wDpRV10SRDnE8ESVXsu/view",
+      SUB_006: "https://drive.google.com/file/d/1W81eMV1dBJQ7N-gV_4ee0n0uxl29zjG2/preview",
+      SUB_007: "https://drive.google.com/file/d/1qChRkeINuqWnEccJA-ibb962MjdzDK3b/",
+      SUB_008: "https://drive.google.com/file/d/1zxCl242ISrKKtH2DJoUy4ey_UI38ItY7/preview",
+      SUB_009: "https://drive.google.com/file/d/1DEjqQgjvlPzq4z5sXPBWyOZ_uKHbOdyx/preview",
+      SUB_010: "https://drive.google.com/file/d/19JruptP14qmRgaYJq3sLXh-utKnxBwli/",
+      SUB_011: "https://drive.google.com/file/d/1N6rHb0YwN-wX23GgDzMk9uyQB73J7Np7/view",
+      SUB_012: "https://drive.google.com/file/d/1Xs-2huJgnVYvtph_1qtzZMF8DQWUBWCw/preview",
+    };
+
+    // ===== PODIUM MEDALS =====
+    function getPodiumEmoji(rank) {
+      switch (rank) {
+        case 1: return "🥇";
+        case 2: return "🥈";
+        case 3: return "🥉";
+        default: return "🏅";
+      }
+    }
+
+    // Helper functions
+    function formatDate(date) {
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const month = months[date.getMonth()];
+      const day = date.getDate();
+      const year = date.getFullYear();
+      return `${month} ${day}, ${year}`;
+    }
+
+    function isToday(date) {
+      if (!date) return true;
+      const today = new Date();
+      return (
+        date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear()
+      );
+    }
+
+    /**
+     * Robust CSV parser (handles commas inside quotes, escaped quotes, etc.)
+     * Returns array of objects with header keys.
+     */
+    function parseCSV(text) {
+      // Normalize line endings
+      text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+      const rows = [];
+      let row = [];
+      let cell = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (char === '"' && inQuotes && next === '"') {
+          // Escaped quote ("")
+          cell += '"';
+          i++;
+        } else if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === "," && !inQuotes) {
+          row.push(cell);
+          cell = "";
+        } else if (char === "\n" && !inQuotes) {
+          row.push(cell);
+          rows.push(row);
+          row = [];
+          cell = "";
+        } else {
+          cell += char;
+        }
+      }
+
+      // Final cell/row
+      if (cell.length || row.length) {
+        row.push(cell);
+        rows.push(row);
+      }
+
+      // Remove empty trailing rows
+      const cleaned = rows.filter(r => r.some(v => String(v).trim() !== ""));
+      if (cleaned.length === 0) return [];
+
+      const headers = cleaned[0].map(h => String(h).trim());
+      return cleaned
+        .slice(1)
+        .filter(r => r.some(v => String(v).trim() !== ""))
+        .map(values => {
+          const obj = {};
+          headers.forEach((h, idx) => {
+            obj[h] = values[idx] != null ? String(values[idx]).trim() : "";
+          });
+          return obj;
+        });
+    }
+
+    // Transform CSV data to display format
+    function transformData(csvData) {
+      return csvData.map((row, index) => {
+        const bestNum = parseInt(row.Best || "0", 10);
+        const submissionId = `SUB_${String(bestNum).padStart(3, "0")}`;
+        const pdfLink = PDF_LINKS[submissionId] || "#";
+
+        const rawPct = (row["Actual %"] || row["Actual%"] || row["Actual"] || "0").toString();
+        const percentage = parseFloat(rawPct.replace("%", "")) || 0;
+
+        const isWinner =
+          String(row.Winner || "").toUpperCase() === "TRUE" ||
+          String(row.Winner || "").toUpperCase() === "YES" ||
+          String(row.Winner || "").toUpperCase() === "Y";
+
+        return {
+          rank: index + 1,
+          asset: row.Asset || row.Ticker || "",
+          percentage,
+          school: row.University || row.School || "Unknown",
+          author: row.Title || row["Report Name"] || "Unknown",
+          link: pdfLink,
+          isWinner,
+          submissionId,
         };
+      });
+    }
 
-        // ===== PODIUM MEDALS =====
-        function getPodiumEmoji(rank) {
-            switch(rank) {
-                case 1: return '🥇';
-                case 2: return '🥈';
-                case 3: return '🥉';
-                default: return '🏅';
-            }
+    // Main App Component
+    function App() {
+      const [isLong, setIsLong] = useState(true);
+      const [longData, setLongData] = useState([]);
+      const [shortData, setShortData] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [lastUpdated, setLastUpdated] = useState(null);
+      const [refreshing, setRefreshing] = useState(false);
+      const [errorMsg, setErrorMsg] = useState("");
+
+      async function fetchCSV(url) {
+        const cleanUrl = url.trim();
+        const res = await fetch(cleanUrl, { cache: "no-store" });
+        const text = await res.text();
+
+        // Guard: if we got HTML instead of CSV, publishing/sharing is wrong
+        if (text.toLowerCase().includes("<!doctype") || text.toLowerCase().includes("<html")) {
+          throw new Error(
+            "Google returned HTML (not CSV). Make sure the sheet tab is published to web (File → Share → Publish to web) and the link is output=csv."
+          );
         }
+        return text;
+      }
 
-        // Helper functions
-        function formatDate(date) {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const month = months[date.getMonth()];
-            const day = date.getDate();
-            const year = date.getFullYear();
-            return `${month} ${day}, ${year}`;
+      async function loadData() {
+        setRefreshing(true);
+        setErrorMsg("");
+        try {
+          console.log("Fetching data from Google Sheets...");
+
+          // Fetch both tabs in parallel
+          const [longText, shortText] = await Promise.all([
+            fetchCSV(LONG_TRACK_CSV),
+            fetchCSV(SHORT_TRACK_CSV),
+          ]);
+
+          console.log("Long CSV sample:", longText.slice(0, 200));
+          console.log("Short CSV sample:", shortText.slice(0, 200));
+
+          const longParsed = transformData(parseCSV(longText));
+          const shortParsed = transformData(parseCSV(shortText));
+
+          console.log("Parsed long rows:", longParsed.length);
+          console.log("Parsed short rows:", shortParsed.length);
+
+          setLongData(longParsed);
+          setShortData(shortParsed);
+
+          setLastUpdated(new Date());
+          setLoading(false);
+        } catch (error) {
+          console.error("Failed to load data:", error);
+          setErrorMsg(error.message || "Failed to load data");
+          setLoading(false);
+        } finally {
+          setRefreshing(false);
         }
+      }
 
-        function isToday(date) {
-            if (!date) return true;
-            const today = new Date();
-            return date.getDate() === today.getDate() &&
-                   date.getMonth() === today.getMonth() &&
-                   date.getFullYear() === today.getFullYear();
-        }
+      useEffect(() => {
+        loadData();
+        const interval = setInterval(loadData, 60000);
+        return () => clearInterval(interval);
+      }, []);
 
-        // Parse CSV
-        function parseCSV(text) {
-            const lines = text.trim().split('\n');
-            const headers = lines[0].split(',').map(h => h.trim());
-            
-            return lines.slice(1).map(line => {
-                const values = line.split(',');
-                const obj = {};
-                headers.forEach((header, i) => {
-                    obj[header] = values[i] ? values[i].trim() : '';
-                });
-                return obj;
-            });
-        }
+      const data = isLong ? longData : shortData;
+      const top3 = data.slice(0, 3);
+      const rest = data.slice(3); // keeps podium separate; change to `data` if you want everyone in the table
 
-        // Transform CSV data to display format
-        function transformData(csvData) {
-            return csvData.map((row, index) => {
-                const bestNum = parseInt(row.Best || '0');
-                const submissionId = `SUB_${String(bestNum).padStart(3, '0')}`;
-                const pdfLink = PDF_LINKS[submissionId] || '#';
-                const percentage = parseFloat((row['Actual %'] || '0').replace('%', ''));
-                const isWinner = row.Winner === 'TRUE';
-                
-                return {
-                    rank: index + 1,
-                    asset: row.Asset || '',
-                    percentage,
-                    school: row.University || 'Unknown',
-                    author: row.Title || 'Unknown',
-                    link: pdfLink,
-                    isWinner,
-                    submissionId
-                };
-            });
-        }
+      const showRefreshButton = lastUpdated && !isToday(lastUpdated);
 
-        // Main App Component
-        function App() {
-            const [isLong, setIsLong] = useState(true);
-            const [longData, setLongData] = useState([]);
-            const [shortData, setShortData] = useState([]);
-            const [loading, setLoading] = useState(true);
-            const [lastUpdated, setLastUpdated] = useState(null);
-            const [refreshing, setRefreshing] = useState(false);
+      if (loading && !lastUpdated) {
+        return (
+          <div className="loading">
+            <div className="spinner"></div>
+            <p style={{ color: "var(--muted-foreground)" }}>Loading leaderboard data...</p>
+          </div>
+        );
+      }
 
-            async function loadData() {
-                setRefreshing(true);
-                try {
-                    console.log('Fetching data from Google Sheets...');
-                    
-                    // Use CORS proxy
-                    const corsProxy = 'https://corsproxy.io/?';
-                    
-                    const longRes = await fetch(corsProxy + encodeURIComponent(LONG_TRACK_CSV));
-                    const longText = await longRes.text();
-                    
-                    console.log('Long track data loaded');
-                    
-                    const longParsed = transformData(parseCSV(longText));
-                    
-                    setLongData(longParsed);
-                    setShortData([]); // Add short track data when available
-                    setLastUpdated(new Date());
-                    setLoading(false);
-                } catch (error) {
-                    console.error('Failed to load data:', error);
-                    setLoading(false);
-                } finally {
-                    setRefreshing(false);
-                }
-            }
+      return (
+        <div className="container">
+          {/* Header */}
+          <div className="header">
+            <div>
+              <h1>
+                How'd It <span className="text-glow">Age?</span>
+              </h1>
+              <p className="subtitle">
+                // TRACKING RESEARCH THESIS PERFORMANCE OVER TIME<br />
+                // MIDWEST BLOCKCHAIN COMPETITION EDITION
+              </p>
+            </div>
 
-            useEffect(() => {
-                loadData();
-                // Auto-refresh every 60 seconds
-                const interval = setInterval(loadData, 60000);
-                return () => clearInterval(interval);
-            }, []);
-
-            const data = isLong ? longData : shortData;
-            const top3 = data.slice(0, 3);
-            const rest = data.slice(3);
-            const showRefreshButton = lastUpdated && !isToday(lastUpdated);
-
-            if (loading && !lastUpdated) {
-                return (
-                    <div className="loading">
-                        <div className="spinner"></div>
-                        <p style={{color: 'var(--muted-foreground)'}}>Loading leaderboard data...</p>
-                    </div>
-                );
-            }
-
-            return (
-                <div className="container">
-                    {/* Header */}
-                    <div className="header">
-                        <div>
-                            <h1>
-                                How'd It <span className="text-glow">Age?</span>
-                            </h1>
-                            <p className="subtitle">
-                                // TRACKING RESEARCH THESIS PERFORMANCE OVER TIME<br/>
-                                // MIDWEST BLOCKCHAIN COMPETITION EDITION
-                            </p>
-                        </div>
-                        
-                        <div className="header-right">
-                            {/* Last Updated */}
-                            {lastUpdated && (
-                                <div className="last-updated">
-                                    <span className="last-updated-text">Last Updated:</span>
-                                    <span className="last-updated-date">{formatDate(lastUpdated)}</span>
-                                    {showRefreshButton && (
-                                        <button 
-                                            className="refresh-btn" 
-                                            onClick={loadData}
-                                            disabled={refreshing}
-                                        >
-                                            <span className="refresh-icon">↻</span>
-                                            {refreshing ? 'Refreshing...' : 'Refresh'}
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-                            
-                            {/* Toggle Switch */}
-                            <div className="toggle-container">
-                                <button 
-                                    className={`toggle-btn ${isLong ? 'active long' : ''}`}
-                                    onClick={() => setIsLong(true)}
-                                >
-                                    Long Positions
-                                </button>
-                                <button 
-                                    className={`toggle-btn ${!isLong ? 'active short' : ''}`}
-                                    onClick={() => setIsLong(false)}
-                                >
-                                    Short Positions
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Podium */}
-                    <div className="podium">
-                        {top3[1] && <PodiumEntry entry={top3[1]} rank={2} />}
-                        {top3[0] && <PodiumEntry entry={top3[0]} rank={1} />}
-                        {top3[2] && <PodiumEntry entry={top3[2]} rank={3} />}
-                    </div>
-
-                    {/* Table */}
-                    <div className="table-container">
-                        <div className="table-header">
-                            <div className="table-title">
-                                <span>⚡</span>
-                                <span>LIVE_FEED_V2.0</span>
-                            </div>
-                            <div className="status-dots">
-                                <div className="dot"></div>
-                                <div className="dot"></div>
-                                <div className="dot active"></div>
-                            </div>
-                        </div>
-                        
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Rank</th>
-                                    <th>Asset</th>
-                                    <th style={{textAlign: 'right'}}>Performance</th>
-                                    <th>School</th>
-                                    <th>Report Name</th>
-                                    <th style={{textAlign: 'center'}}>Source</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {rest.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={6} style={{textAlign: 'center', padding: '3rem', color: 'var(--muted-foreground)'}}>
-                                            No data available
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    rest.map((entry) => (
-                                        <tr key={entry.rank} className={entry.isWinner ? 'winner' : ''}>
-                                            <td className="rank-cell">
-                                                {String(entry.rank).padStart(2, '0')}
-                                            </td>
-                                            <td>
-                                                <div className="asset-cell">
-                                                    <div className="asset-indicator"></div>
-                                                    <span>{entry.asset}</span>
-                                                    {entry.isWinner && (
-                                                        <span className="crown">
-                                                            👑
-                                                            <span className="crown-tooltip">
-                                                                Finalist @ MBC Research Comp
-                                                            </span>
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className={`perf-cell ${entry.percentage >= 0 ? 'positive' : 'negative'}`}>
-                                                {entry.percentage > 0 ? '+' : ''}{entry.percentage.toFixed(2)}%
-                                            </td>
-                                            <td className="school-cell">{entry.school}</td>
-                                            <td className="school-cell" style={{maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
-                                                {entry.author}
-                                            </td>
-                                            <td className="link-cell">
-                                                <a 
-                                                    href={entry.link} 
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="link-btn"
-                                                >
-                                                    →
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    {/* Attribution */}
-                    <div className="attribution">
-                        Made by <a href="https://x.com/EzvenG" target="_blank" rel="noopener noreferrer">ezven.eth</a>
-                    </div>
+            <div className="header-right">
+              {/* Last Updated */}
+              {lastUpdated && (
+                <div className="last-updated">
+                  <span className="last-updated-text">Last Updated:</span>
+                  <span className="last-updated-date">{formatDate(lastUpdated)}</span>
+                  {showRefreshButton && (
+                    <button className="refresh-btn" onClick={loadData} disabled={refreshing}>
+                      <span className="refresh-icon">↻</span>
+                      {refreshing ? "Refreshing..." : "Refresh"}
+                    </button>
+                  )}
                 </div>
-            );
-        }
+              )}
 
-        function PodiumEntry({ entry, rank }) {
-            const isFirst = rank === 1;
-            const classes = `podium-entry ${isFirst ? 'first' : rank === 2 ? 'second' : 'third'}`;
-            const medal = getPodiumEmoji(rank);
-            
-            return (
-                <div className={classes}>
-                    <div className="avatar-container">
-                        <div className={`rank-badge ${isFirst ? 'first' : ''}`}>
-                            Rank #{rank}
-                        </div>
-                        <div className={`avatar ${isFirst ? 'first' : ''}`}>
-                            <div style={{
-                                width: '100%',
-                                height: '100%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: isFirst ? '6rem' : '4.5rem',
-                                background: 'rgba(0, 0, 0, 0.5)'
-                            }}>
-                                {medal}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="stats-card">
-                        <div className="asset-name">{entry.asset}</div>
-                        <div className={`percentage ${entry.percentage >= 0 ? 'positive' : 'negative'}`}>
-                            {entry.percentage >= 0 ? '↗' : '↘'} {Math.abs(entry.percentage).toFixed(2)}%
-                        </div>
-                        <div className="school-name">{entry.school}</div>
-                    </div>
-                </div>
-            );
-        }
+              {/* Toggle Switch */}
+              <div className="toggle-container">
+                <button
+                  className={`toggle-btn ${isLong ? "active long" : ""}`}
+                  onClick={() => setIsLong(true)}
+                >
+                  Long Positions
+                </button>
+                <button
+                  className={`toggle-btn ${!isLong ? "active short" : ""}`}
+                  onClick={() => setIsLong(false)}
+                >
+                  Short Positions
+                </button>
+              </div>
+            </div>
+          </div>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+          {/* Error */}
+          {errorMsg && (
+            <div style={{
+              border: "1px solid var(--destructive)",
+              padding: "1rem",
+              marginBottom: "1.5rem",
+              background: "rgba(255, 59, 48, 0.08)",
+              color: "var(--foreground)"
+            }}>
+              <div style={{ fontWeight: 700, marginBottom: "0.25rem" }}>Data load error</div>
+              <div style={{ color: "var(--muted-foreground)", fontSize: "0.85rem" }}>{errorMsg}</div>
+            </div>
+          )}
+
+          {/* Podium */}
+          <div className="podium">
+            {top3[1] && <PodiumEntry entry={top3[1]} rank={2} />}
+            {top3[0] && <PodiumEntry entry={top3[0]} rank={1} />}
+            {top3[2] && <PodiumEntry entry={top3[2]} rank={3} />}
+          </div>
+
+          {/* Table */}
+          <div className="table-container">
+            <div className="table-header">
+              <div className="table-title">
+                <span>⚡</span>
+                <span>LIVE_FEED_V2.0</span>
+              </div>
+              <div className="status-dots">
+                <div className="dot"></div>
+                <div className="dot"></div>
+                <div className="dot active"></div>
+              </div>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Asset</th>
+                  <th style={{ textAlign: "right" }}>Performance</th>
+                  <th>School</th>
+                  <th>Report Name</th>
+                  <th style={{ textAlign: "center" }}>Source</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ textAlign: "center", padding: "3rem", color: "var(--muted-foreground)" }}>
+                      No data available
+                    </td>
+                  </tr>
+                ) : rest.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ textAlign: "center", padding: "3rem", color: "var(--muted-foreground)" }}>
+                      Only top 3 entries exist (podium above). Add more rows to show table entries.
+                    </td>
+                  </tr>
+                ) : (
+                  rest.map((entry) => (
+                    <tr key={entry.rank} className={entry.isWinner ? "winner" : ""}>
+                      <td className="rank-cell">{String(entry.rank).padStart(2, "0")}</td>
+                      <td>
+                        <div className="asset-cell">
+                          <div className="asset-indicator"></div>
+                          <span>{entry.asset}</span>
+                          {entry.isWinner && (
+                            <span className="crown">
+                              👑
+                              <span className="crown-tooltip">Finalist @ MBC Research Comp</span>
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className={`perf-cell ${entry.percentage >= 0 ? "positive" : "negative"}`}>
+                        {entry.percentage > 0 ? "+" : ""}{entry.percentage.toFixed(2)}%
+                      </td>
+                      <td className="school-cell">{entry.school}</td>
+                      <td className="school-cell" style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {entry.author}
+                      </td>
+                      <td className="link-cell">
+                        <a
+                          href={entry.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="link-btn"
+                          title={entry.submissionId}
+                        >
+                          →
+                        </a>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Attribution */}
+          <div className="attribution">
+            Made by{" "}
+            <a href="https://x.com/EzvenG" target="_blank" rel="noopener noreferrer">
+              ezven.eth
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    function PodiumEntry({ entry, rank }) {
+      const isFirst = rank === 1;
+      const classes = `podium-entry ${isFirst ? "first" : rank === 2 ? "second" : "third"}`;
+      const medal = getPodiumEmoji(rank);
+
+      return (
+        <div className={classes}>
+          <div className="avatar-container">
+            <div className={`rank-badge ${isFirst ? "first" : ""}`}>Rank #{rank}</div>
+            <div className={`avatar ${isFirst ? "first" : ""}`}>
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: isFirst ? "6rem" : "4.5rem",
+                  background: "rgba(0, 0, 0, 0.5)",
+                }}
+              >
+                {medal}
+              </div>
+            </div>
+          </div>
+
+          <div className="stats-card">
+            <div className="asset-name">{entry.asset}</div>
+            <div className={`percentage ${entry.percentage >= 0 ? "positive" : "negative"}`}>
+              {entry.percentage >= 0 ? "↗" : "↘"} {Math.abs(entry.percentage).toFixed(2)}%
+            </div>
+            <div className="school-name">{entry.school}</div>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
 </body>
 </html>
