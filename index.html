@@ -546,68 +546,11 @@
         const LONG_TRACK_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwiSq0rO__eFrgG3T-F63wg490m1OabiZsn3MHpCqIpRYz7oqbcImIvVfblW50Yl_toIW0mhxgaalF/pub?gid=1519177189&single=true&output=csv';
         const SHORT_TRACK_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwiSq0rO__eFrgG3T-F63wg490m1OabiZsn3MHpCqIpRYz7oqbcImIvVfblW50Yl_toIW0mhxgaalF/pub?gid=2031650567&single=true&output=csv';
 
-        // ALL 57 PDF LINKS MAPPED TO SUBMISSION IDs
-        const PDF_LINKS = {
-            'SUB_001': 'https://drive.google.com/file/d/1BtQw5V0Zdi5BKDchOI1wY5YbT1mRp8WP/preview',
-            'SUB_002': 'https://drive.google.com/file/d/1-pdWKczZsQynBN7VKE0lGk1FitqYXlEa/preview',
-            'SUB_003': 'https://drive.google.com/file/d/1R1uEWvNYje3YNn6jyzwgV90tW1euCJht/preview',
-            'SUB_004': 'https://drive.google.com/file/d/1JKXqkbGMWnIRqUiZhsigRWccucOekEGh/preview',
-            'SUB_005': 'https://drive.google.com/file/d/1SRjPyBxruR7f3wDpRV10SRDnE8ESVXsu/view',
-            'SUB_006': 'https://drive.google.com/file/d/1W81eMV1dBJQ7N-gV_4ee0n0uxl29zjG2/preview',
-            'SUB_007': 'https://drive.google.com/file/d/1qChRkeINuqWnEccJA-ibb962MjdzDK3b/',
-            'SUB_008': 'https://drive.google.com/file/d/1zxCl242ISrKKtH2DJoUy4ey_UI38ItY7/preview',
-            'SUB_009': 'https://drive.google.com/file/d/1DEjqQgjvlPzq4z5sXPBWyOZ_uKHbOdyx/preview',
-            'SUB_010': 'https://drive.google.com/file/d/19JruptP14qmRgaYJq3sLXh-utKnxBwli/',
-            'SUB_011': 'https://drive.google.com/file/d/1N6rHb0YwN-wX23GgDzMk9uyQB73J7Np7/view',
-            'SUB_012': 'https://drive.google.com/file/d/1Xs-2huJgnVYvtph_1qtzZMF8DQWUBWCw/preview',
-            'SUB_013': 'https://drive.google.com/file/d/1LfZxrfArA2l9rpZoqDqylJk65qywVCkI/',
-            'SUB_014': 'https://drive.google.com/file/d/13Ig7hn5hBV4n75iKN3wg2hnwFqOLcyA_/view',
-            'SUB_015': 'https://drive.google.com/file/d/18nX9s-YidJd4e2tI2fzPyoUkGEAwj1ZF/preview',
-            'SUB_016': 'https://drive.google.com/file/d/1UXWtsBPnUV4wDXS7WZQ_SijgPzYS7Rmi/preview',
-            'SUB_017': 'https://drive.google.com/file/d/1631Y5NfPj2MZpWjcX7F_R4VgE3pvKD7U/',
-            'SUB_018': 'https://drive.google.com/file/d/1Y9EbiKMQkinVXAgUB6HdqTJ_wW9cNpyS/preview',
-            'SUB_019': 'https://drive.google.com/file/d/1i7gHZBRydAm5J8DKnW6n4Uri8Lse1XB4/preview',
-            'SUB_020': 'https://drive.google.com/file/d/1Xl-RGymfkON83Zhz8D0S7rwzfy7UW7pr/preview',
-            'SUB_021': 'https://drive.google.com/file/d/1qCIp7wi9SUly6T0gzd91aXqj1RQqAMlm/preview',
-            'SUB_022': 'https://drive.google.com/file/d/1qwyvcts2O2-MnxnDIBGHENRkvAw6duVZ/preview',
-            'SUB_023': 'https://drive.google.com/file/d/1fRbMQzvovyIQaB8D9Jb0so_n3QX9mXVc/preview',
-            'SUB_024': 'https://drive.google.com/file/d/17Mb3ykvzFx_hNrlzwBkZZaDhaFsi6B83/view',
-            'SUB_025': 'https://drive.google.com/file/d/1ivutfUzfJj6cKE7W1p7bXrRWix3isiCQ/preview',
-            'SUB_026': 'https://drive.google.com/file/d/1cBMiYuEBSsqJfRdFCG0o6oHO_IpX2dsV/preview',
-            'SUB_027': 'https://drive.google.com/file/d/1DocXoMe3nZeFgYjYs0DZH6YpQJ0FM9XO/preview',
-            'SUB_028': 'https://drive.google.com/file/d/1sh1PihqokVpb9Yr5dO3B0XN_lHFMJfHP/preview',
-            'SUB_029': 'https://drive.google.com/file/d/1vc9ETfGsGc5JUP8Dsf6OqrJDbsYYC7Ss/preview',
-            'SUB_030': 'https://drive.google.com/file/d/1cXFUPjJKyldzQZgoNieq1QzGDWoDS5Tt/preview',
-            'SUB_031': 'https://drive.google.com/file/d/1zt-UKfA-R8XQo77x9nrGLjc0fO23Yn2n/preview',
-            'SUB_032': 'https://drive.google.com/file/d/1zr0D9qX7VWxr_HlzQFcYGRaZRQ_9jSR8/preview',
-            'SUB_033': 'https://drive.google.com/file/d/1BaeHMaNthB8mTZ_YnVpWjcHTtTPA_hd8/',
-            'SUB_034': 'https://drive.google.com/file/d/1T4vSnvUBzpkS7fAD7u_cUuDvH9C5nJI4/preview',
-            'SUB_035': 'https://drive.google.com/file/d/1wqJgpNLXCFwhPQalyvtyZesHBZQ1YQI5/view',
-            'SUB_036': 'https://drive.google.com/file/d/1pR0jnf51yHolO2HsqorK79E_2G4KOn31/preview',
-            'SUB_037': 'https://drive.google.com/file/d/1JpLg39BK08Ggk20zT320VEBbIoA6QQgO/preview',
-            'SUB_038': 'https://drive.google.com/file/d/15UmhzDcg9LUoJypH5LyJdUL8ckpAGCpZ/preview',
-            'SUB_039': 'https://drive.google.com/file/d/1vlckK8ulZudzshbrLEyX6uSD18e9xYql/preview',
-            'SUB_040': 'https://drive.google.com/file/d/1bsiDbHeaP-B_1hCqHcGRtju29jUrLJYy/preview',
-            'SUB_041': 'https://drive.google.com/file/d/1SDcYK8UOOuDShemLWsoaczpJukv9rSPx/preview',
-            'SUB_042': 'https://drive.google.com/file/d/13w6lo1VBVpAVvgPor4GVmhozR2YjvPXo/preview',
-            'SUB_043': 'https://drive.google.com/file/d/1b0GR4hE0gll_OI-e9DeF7_bIUGDwIym0/preview',
-            'SUB_044': 'https://drive.google.com/file/d/1eN5M-p4S4QEVRtu7wvfqN5cjKjUYNF1D/preview',
-            'SUB_045': 'https://drive.google.com/file/d/1lKTx4TvN0_hxlK9R_oUGZS7MUG-QU5WU/preview',
-            'SUB_046': 'https://drive.google.com/file/d/1EDEOZ40SU2sKw02GEBwRNaAodlpK2JfS/preview',
-            'SUB_047': 'https://drive.google.com/file/d/1OIGxl-5vyZNG7Y78-dz49Hk7E-PGB_0G/preview',
-            'SUB_048': 'https://drive.google.com/file/d/1GNkIaldxbuc_BQITKzM45hDjGrvT3qVY/preview',
-            'SUB_049': 'https://drive.google.com/file/d/1TIMGZXLa4DV-TE57cs8RS1kWSONGnLTt/preview',
-            'SUB_050': 'https://drive.google.com/file/d/1AAJbYbVqXcQ8k8MC4KiD19OgotQkPm8z/preview',
-            'SUB_051': 'https://drive.google.com/file/d/1uGdbXIdrsxtDK6gCQQXFyaSnt5_R_KuA/preview',
-            'SUB_052': 'https://drive.google.com/file/d/1j5wqF4xhxy-cbBPXFn0IOJVAPSAoddmN/preview',
-            'SUB_053': 'https://drive.google.com/file/d/1lFtx2JTnQGv10Q5JF59QVBsmZhrKNE91/preview',
-            'SUB_054': 'https://drive.google.com/file/d/1MrPPISbDf5A-qYFAU1R2AXrR8GdjpuZk/preview',
-            'SUB_055': 'https://drive.google.com/file/d/1WKAYcq5Jws45yZqAB6aOZ1zBJs62Ml8z',
-            'SUB_056': 'https://drive.google.com/file/d/1v34koaTbfFp16a6G5FoZMAMXO0NtB3ve/view',
-            'SUB_057': 'https://drive.google.com/file/d/115WYpXmJA2z0kJKMjkwDb2NIOE9VFfr8/preview'
-        };
 
-        // Coin logo URLs from CoinGecko
+        // PDF links are now pulled directly from the CSV's "PDF" column
+        // No need for hardcoded mapping anymore!
+
+        // Coin logo URLs from CoinGecko - Expanded to cover all competition tokens
         const COIN_LOGOS = {
             'BTC': 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
             'ETH': 'https://assets.coingecko.com/coins/images/279/large/ethereum.png',
@@ -629,6 +572,30 @@
             'TIA': 'https://assets.coingecko.com/coins/images/31967/large/tia.jpg',
             'JTO': 'https://assets.coingecko.com/coins/images/33213/large/jito.png',
             'HYPE': 'https://assets.coingecko.com/coins/images/34364/large/hyperliquid.jpg',
+            'REKT': 'https://assets.coingecko.com/coins/images/31967/large/rekt.png',
+            'KITE': 'https://assets.coingecko.com/coins/images/29850/large/kite.png',
+            'ETHFI': 'https://assets.coingecko.com/coins/images/35958/large/etherfi.png',
+            'JLP': 'https://assets.coingecko.com/coins/images/33198/large/jlp.png',
+            'RAIL': 'https://assets.coingecko.com/coins/images/16840/large/railgun.jpg',
+            'PUMP': 'https://assets.coingecko.com/coins/images/37913/large/pump.png',
+            'META': 'https://assets.coingecko.com/coins/images/33800/large/meta.png',
+            'SYRUP': 'https://assets.coingecko.com/coins/images/14681/large/syrup.png',
+            'GRASS': 'https://assets.coingecko.com/coins/images/37084/large/grass.jpg',
+            'MORPHO': 'https://assets.coingecko.com/coins/images/36781/large/morpho.jpg',
+            'BABY': 'https://assets.coingecko.com/coins/images/38005/large/babylon.png',
+            'AVICI': 'https://assets.coingecko.com/coins/images/35234/large/avici.png',
+            'MET': 'https://assets.coingecko.com/coins/images/30132/large/met.png',
+            'PLUME': 'https://assets.coingecko.com/coins/images/37800/large/plume.png',
+            'BMX': 'https://assets.coingecko.com/coins/images/5307/large/bmx.png',
+            'AUKI': 'https://assets.coingecko.com/coins/images/28180/large/auki.png',
+            'EUL': 'https://assets.coingecko.com/coins/images/19307/large/euler.png',
+            'ASTER': 'https://assets.coingecko.com/coins/images/35800/large/aster.png',
+            'DUPE': 'https://assets.coingecko.com/coins/images/37234/large/dupe.png',
+            'NIBI': 'https://assets.coingecko.com/coins/images/37840/large/nibiru.png',
+            'ZEC': 'https://assets.coingecko.com/coins/images/486/large/zcash.png',
+            'GEOD': 'https://assets.coingecko.com/coins/images/25836/large/geodnet.png',
+            'PI': 'https://assets.coingecko.com/coins/images/35836/large/pi.png',
+            'MEME': 'https://assets.coingecko.com/coins/images/32568/large/meme.png',
         };
 
         function getCoinLogo(ticker) {
@@ -690,20 +657,22 @@
         }
 
         function transformData(csvData) {
-            return csvData.map((row, index) => {
-                const bestNum = parseInt(row.Best || '0');
-                const submissionId = `SUB_${String(bestNum).padStart(3, '0')}`;
-                const pdfLink = PDF_LINKS[submissionId] || '#';
+            return csvData.map((row) => {
+                // Get PDF link directly from CSV's PDF column
+                const pdfLink = row.PDF || row.pdf || '#';
                 const percentage = parseFloat((row['Actual %'] || '0').replace('%', ''));
                 const isWinner = row.Winner === 'TRUE';
+                const bestNum = parseInt(row.Best || '0');
+                const submissionId = `SUB_${String(bestNum).padStart(3, '0')}`;
+                const rank = parseInt(row.Rank || '0'); // Use actual Rank from CSV
                 
                 return {
-                    rank: index + 1,
+                    rank: rank, // Use rank from CSV, not array index
                     asset: row.Asset || '',
                     percentage,
                     school: row.University || 'Unknown',
                     author: row.Title || 'Unknown',
-                    link: pdfLink,
+                    link: pdfLink, // Use PDF link directly from CSV
                     isWinner,
                     submissionId,
                     logo: getCoinLogo(row.Asset || '')
@@ -951,10 +920,19 @@
                             Rank #{rank}
                         </div>
                         <div className={`avatar ${isFirst ? 'first' : ''}`}>
+                            <img 
+                                src={entry.logo} 
+                                alt={entry.asset}
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                }}
+                                style={{width: '100%', height: '100%', objectFit: 'cover'}}
+                            />
                             <div style={{
+                                display: 'none',
                                 width: '100%',
                                 height: '100%',
-                                display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 fontSize: isFirst ? '6rem' : '4.5rem',
