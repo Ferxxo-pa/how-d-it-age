@@ -718,30 +718,55 @@
             const [loading, setLoading] = useState(true);
             const [lastUpdated, setLastUpdated] = useState(null);
             const [refreshing, setRefreshing] = useState(false);
+            const [error, setError] = useState(null);
 
             async function loadData() {
                 setRefreshing(true);
                 try {
-                    console.log('Fetching data...');
+                    console.log('Fetching data from Google Sheets...');
                     
-                    const corsProxy = 'https://corsproxy.io/?';
+                    // Try direct fetch first (Google Sheets published CSVs allow CORS)
+                    let longText, shortText;
                     
-                    // Fetch Long Track
-                    const longRes = await fetch(corsProxy + encodeURIComponent(LONG_TRACK_CSV));
-                    const longText = await longRes.text();
+                    try {
+                        // Try direct fetch
+                        const longRes = await fetch(LONG_TRACK_CSV);
+                        longText = await longRes.text();
+                        console.log('Long track loaded directly');
+                    } catch (e) {
+                        console.log('Direct fetch failed, trying with CORS proxy...');
+                        const corsProxy = 'https://api.allorigins.win/raw?url=';
+                        const longRes = await fetch(corsProxy + encodeURIComponent(LONG_TRACK_CSV));
+                        longText = await longRes.text();
+                    }
+                    
+                    try {
+                        // Try direct fetch
+                        const shortRes = await fetch(SHORT_TRACK_CSV);
+                        shortText = await shortRes.text();
+                        console.log('Short track loaded directly');
+                    } catch (e) {
+                        console.log('Direct fetch failed, trying with CORS proxy...');
+                        const corsProxy = 'https://api.allorigins.win/raw?url=';
+                        const shortRes = await fetch(corsProxy + encodeURIComponent(SHORT_TRACK_CSV));
+                        shortText = await shortRes.text();
+                    }
+                    
+                    console.log('Parsing CSV data...');
                     const longParsed = transformData(parseCSV(longText));
-                    
-                    // Fetch Short Track
-                    const shortRes = await fetch(corsProxy + encodeURIComponent(SHORT_TRACK_CSV));
-                    const shortText = await shortRes.text();
                     const shortParsed = transformData(parseCSV(shortText));
+                    
+                    console.log(`Loaded ${longParsed.length} long positions, ${shortParsed.length} short positions`);
                     
                     setLongData(longParsed);
                     setShortData(shortParsed);
                     setLastUpdated(new Date());
                     setLoading(false);
+                    setError(null);
                 } catch (error) {
                     console.error('Failed to load data:', error);
+                    console.error('Error details:', error.message);
+                    setError(error.message);
                     setLoading(false);
                 } finally {
                     setRefreshing(false);
@@ -764,6 +789,15 @@
                     <div className="loading">
                         <div className="spinner"></div>
                         <p style={{color: 'var(--muted-foreground)'}}>Loading leaderboard data...</p>
+                        {error && (
+                            <p style={{color: 'var(--destructive)', marginTop: '1rem', maxWidth: '500px', textAlign: 'center'}}>
+                                Error: {error}
+                                <br/>
+                                <button onClick={loadData} style={{marginTop: '1rem', padding: '0.5rem 1rem', cursor: 'pointer'}}>
+                                    Retry
+                                </button>
+                            </p>
+                        )}
                     </div>
                 );
             }
