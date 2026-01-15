@@ -516,6 +516,86 @@
             color: var(--primary);
         }
 
+        .competition-rules {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .competition-rules h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .rule-card {
+            background: rgba(139, 92, 246, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .rule-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--foreground);
+        }
+
+        .rule-card p {
+            color: var(--muted-foreground);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .submissions-list {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .submissions-list h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .submissions-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .submissions-list li {
+            font-size: 0.85rem;
+            color: var(--muted-foreground);
+            padding: 0.25rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .submissions-list li:before {
+            content: "•";
+            color: var(--primary);
+            flex-shrink: 0;
+            margin-top: 0.15rem;
+        }
+
         .loading {
             display: flex;
             flex-direction: column;
@@ -747,7 +827,12 @@
                 };
                 if (isOpen) {
                     document.addEventListener('keydown', handleEsc);
-                    return () => document.removeEventListener('keydown', handleEsc);
+                    // Prevent body scroll when modal is open
+                    document.body.style.overflow = 'hidden';
+                    return () => {
+                        document.removeEventListener('keydown', handleEsc);
+                        document.body.style.overflow = 'unset';
+                    };
                 }
             }, [isOpen, onClose]);
 
@@ -766,7 +851,8 @@
                         alignItems: 'center',
                         justifyContent: 'center',
                         zIndex: 9999,
-                        padding: '1rem'
+                        padding: '1rem',
+                        overflowY: 'auto'
                     }}
                     onClick={onClose}
                 >
@@ -780,7 +866,8 @@
                             maxHeight: '80vh',
                             overflow: 'hidden',
                             position: 'relative',
-                            boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)'
+                            boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)',
+                            margin: 'auto'
                         }}
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -1175,6 +1262,102 @@
                                 )}
                             </tbody>
                         </table>
+                    </div>
+                    
+                    <div className="competition-rules">
+                        <h2>Competition Categories</h2>
+                        <div className="rules-grid">
+                            <div className="rule-card">
+                                <h3>Long &lt; $250M MC</h3>
+                                <p>Select an asset under $250M market cap and argue a long thesis.</p>
+                                <div className="submissions-list">
+                                    <h4>Submissions ({isLong ? '13' : '0'})</h4>
+                                    {isLong && (
+                                        <ul>
+                                            <li>$MET - University of Waterloo</li>
+                                            <li>Plume - UPenn, Vanderbilt</li>
+                                            <li>dYdX - University of Chicago 👑</li>
+                                            <li>Avici - Purdue University</li>
+                                            <li>Grass ($GRASS) - Columbia 👑</li>
+                                            <li>Avici - University of Michigan</li>
+                                            <li>Kite - San Diego State</li>
+                                            <li>MetaDAO - UT Austin 👑</li>
+                                            <li>REKT Coin - Texas Tech</li>
+                                            <li>AUKI - USC</li>
+                                            <li>Babylon (BABY) - Baruch College</li>
+                                            <li>$JTO - Purdue University</li>
+                                            <li>$Dupe - Cal Poly</li>
+                                            <li>RAIL - University of Mary Washington</li>
+                                            <li>Nibiru chain - University of Lagos</li>
+                                        </ul>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            <div className="rule-card">
+                                <h3>Long &gt; $250M MC</h3>
+                                <p>Select an asset over $250M market cap and argue a long thesis.</p>
+                                <div className="submissions-list">
+                                    <h4>Submissions ({isLong ? '28' : '0'})</h4>
+                                    {isLong && (
+                                        <ul>
+                                            <li>EtherFi - Purdue University</li>
+                                            <li>$LINK - University of Kansas</li>
+                                            <li>Aave ($AAVE) - Purdue</li>
+                                            <li>SUI - Saint Louis University</li>
+                                            <li>Pyth Network - U of Michigan</li>
+                                            <li>Maple Finance - U of Minnesota</li>
+                                            <li>Uniswap - UT Austin</li>
+                                            <li>Artemis - U of Michigan</li>
+                                            <li>Bitcoin - Cal State, UAA</li>
+                                            <li>$TAO - Indiana University</li>
+                                            <li>$HYPE - U of Alabama 👑</li>
+                                            <li>Aster - Columbia University</li>
+                                            <li>Hyperliquid (HYPE) - UT</li>
+                                            <li>Chainlink - U of Oregon</li>
+                                            <li>Pump - Cornell 👑</li>
+                                            <li>AsterDEX - U of Michigan</li>
+                                            <li>$JLP - U of Kansas</li>
+                                            <li>PENDLE - U of Waterloo</li>
+                                            <li>Pendle - U of Oregon</li>
+                                            <li>PENDLE - U of Chicago</li>
+                                            <li>Sol - Dartmouth College</li>
+                                            <li>Morpho - Villanova 👑</li>
+                                            <li>BitMart Token - Purdue</li>
+                                            <li>Hyperliquid - Georgia Tech</li>
+                                            <li>$HYPE - Obafemi Awolowo</li>
+                                        </ul>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            <div className="rule-card">
+                                <h3>Short &gt; $1B MC</h3>
+                                <p>Select an asset over $1B market cap and argue a short thesis.</p>
+                                <div className="submissions-list">
+                                    <h4>Submissions ({!isLong ? '14' : '0'})</h4>
+                                    {!isLong && (
+                                        <ul>
+                                            <li>Memecore - U of Waterloo 👑</li>
+                                            <li>Ethena - U of Chicago 👑</li>
+                                            <li>$ASTER - Cal State Fullerton</li>
+                                            <li>$PI - UT Austin</li>
+                                            <li>Dogecoin - Purdue University</li>
+                                            <li>Avalanche - U of Michigan</li>
+                                            <li>Pi Coin - Indiana 👑</li>
+                                            <li>Worldcoin - CU Boulder</li>
+                                            <li>GEODNET - Yale University</li>
+                                            <li>WLD, Worldcoin - Stanford</li>
+                                            <li>Zcash - Baruch College</li>
+                                            <li>Polkadot ($DOT) - Dalhousie</li>
+                                            <li>$PUMP - University of Utah</li>
+                                            <li>Solana (SOL) - Cal State</li>
+                                            <li>ZEC - Penn State</li>
+                                        </ul>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div className="attribution">
