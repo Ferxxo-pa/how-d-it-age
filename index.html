@@ -929,52 +929,31 @@
                             )}
                         </td>
                         <td className="school-cell" style={{maxWidth: '200px'}}>
-                            {(() => {
-    const actionStyle = {
-        marginTop: '0.5rem',
-        background: `rgba(${accentColorRgb}, 0.15)`,
-        border: `1px solid rgba(${accentColorRgb}, 0.3)`,
-        color: accentColor,
-        padding: '0.35rem 0.75rem',
-        borderRadius: '6px',
-        fontSize: '0.75em',
-        fontWeight: '500',
-        transition: 'all 0.2s',
-        width: '100%',
-        display: 'block',
-        textAlign: 'center',
-        lineHeight: '1.2'
-    };
-
-    const hoverIn = (e) => (e.currentTarget.style.background = `rgba(${accentColorRgb}, 0.25)`);
-    const hoverOut = (e) => (e.currentTarget.style.background = `rgba(${accentColorRgb}, 0.15)`);
-
-    if (hasMultiple) {
-        return (
-            <button
-                onClick={() => setShowModal(true)}
-                style={{ ...actionStyle, cursor: 'pointer' }}
-                onMouseEnter={hoverIn}
-                onMouseLeave={hoverOut}
-            >
-                View Reports →
-            </button>
-        );
-    }
-
-    return (
-        <a
-            href={entry.submissions[0].link}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ ...actionStyle, textDecoration: 'none' }}
-            onMouseEnter={hoverIn}
-            onMouseLeave={hoverOut}
-        >
-            View Report →
-        </a>
-    );
-})()}
+                            {hasMultiple ? (
+                                <button 
+                                    onClick={() => setShowModal(true)}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: 'var(--primary)',
+                                        cursor: 'pointer',
+                                        fontSize: '0.9em',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        padding: '0.25rem 0.5rem',
+                                        borderRadius: '4px',
+                                        transition: 'background-color 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(16, 185, 129, 0.1)'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                >
+                                    <span>▶</span>
+                                    <span>{entry.submissionCount} submissions</span>
+                                </button>
+                            ) : (
+                                entry.submissions[0].author
+                            )}
                         </td>
                         <td className="link-cell">
                             {hasMultiple ? (
