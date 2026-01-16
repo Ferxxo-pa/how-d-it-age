@@ -550,15 +550,9 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // GOOGLE SHEETS CSV URLS - Connected to your live data!
         const LONG_TRACK_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwiSq0rO__eFrgG3T-F63wg490m1OabiZsn3MHpCqIpRYz7oqbcImIvVfblW50Yl_toIW0mhxgaalF/pub?gid=1519177189&single=true&output=csv';
         const SHORT_TRACK_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwiSq0rO__eFrgG3T-F63wg490m1OabiZsn3MHpCqIpRYz7oqbcImIvVfblW50Yl_toIW0mhxgaalF/pub?gid=2031650567&single=true&output=csv';
 
-
-        // PDF links are now pulled directly from the CSV's "PDF" column
-        // No need for hardcoded mapping anymore!
-
-        // Coin logo URLs from CoinGecko - Expanded to cover all competition tokens
         const COIN_LOGOS = {
             'BTC': 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
             'ETH': 'https://assets.coingecko.com/coins/images/279/large/ethereum.png',
@@ -665,7 +659,6 @@
         }
 
         function transformData(csvData, isLong = true) {
-            // First, transform all the data
             const transformed = csvData.map((row) => {
                 const pdfLink = row.PDF || row.pdf || '#';
                 const percentage = parseFloat((row['Actual %'] || '0').replace('%', ''));
@@ -685,7 +678,6 @@
                 };
             });
 
-            // Group by asset and percentage (same asset = same performance)
             const grouped = {};
             transformed.forEach(entry => {
                 const key = entry.asset;
@@ -706,30 +698,24 @@
                 });
             });
 
-            // Convert to array and sort by performance
-            // Long: highest to lowest (b - a)
-            // Short: lowest to highest (a - b) - most negative first
             const groupedArray = Object.values(grouped);
             groupedArray.sort((a, b) => {
                 if (isLong) {
-                    return b.percentage - a.percentage; // Descending for longs
+                    return b.percentage - a.percentage;
                 } else {
-                    return a.percentage - b.percentage; // Ascending for shorts (most negative first)
+                    return a.percentage - b.percentage;
                 }
             });
 
-            // Assign ranks with ties
             let currentRank = 1;
             groupedArray.forEach((entry, index) => {
                 entry.rank = currentRank;
                 currentRank++;
                 
-                // Add schools list and count
                 entry.schools = [...new Set(entry.submissions.map(s => s.school))];
                 entry.schoolCount = entry.schools.length;
                 entry.submissionCount = entry.submissions.length;
                 
-                // Sort submissions - winners first
                 entry.submissions.sort((a, b) => {
                     if (a.isWinner && !b.isWinner) return -1;
                     if (!a.isWinner && b.isWinner) return 1;
@@ -747,7 +733,11 @@
                 };
                 if (isOpen) {
                     document.addEventListener('keydown', handleEsc);
-                    return () => document.removeEventListener('keydown', handleEsc);
+                    document.body.style.overflow = 'hidden';
+                    return () => {
+                        document.removeEventListener('keydown', handleEsc);
+                        document.body.style.overflow = 'unset';
+                    };
                 }
             }, [isOpen, onClose]);
 
@@ -766,7 +756,8 @@
                         alignItems: 'center',
                         justifyContent: 'center',
                         zIndex: 9999,
-                        padding: '1rem'
+                        padding: '1rem',
+                        overflowY: 'auto'
                     }}
                     onClick={onClose}
                 >
@@ -780,11 +771,11 @@
                             maxHeight: '80vh',
                             overflow: 'hidden',
                             position: 'relative',
-                            boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)'
+                            boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)',
+                            margin: 'auto'
                         }}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Header */}
                         <div style={{
                             padding: '1.5rem',
                             borderBottom: '1px solid var(--border)',
@@ -819,7 +810,6 @@
                             </button>
                         </div>
 
-                        {/* Submissions List */}
                         <div style={{
                             padding: '1rem',
                             maxHeight: 'calc(80vh - 120px)',
@@ -885,10 +875,9 @@
             );
         }
 
-        function SubmissionRow({ entry, isExpanded, onToggle }) {
+        function SubmissionRow({ entry }) {
             const [showModal, setShowModal] = useState(false);
             const hasMultiple = entry.submissionCount > 1;
-            const assetKey = `${entry.asset}-${entry.rank}`;
             
             return (
                 <>
@@ -1001,40 +990,28 @@
             async function loadData() {
                 setRefreshing(true);
                 try {
-                    console.log('Fetching data from Google Sheets...');
-                    
-                    // Try direct fetch first (Google Sheets published CSVs allow CORS)
                     let longText, shortText;
                     
                     try {
-                        // Try direct fetch
                         const longRes = await fetch(LONG_TRACK_CSV);
                         longText = await longRes.text();
-                        console.log('Long track loaded directly');
                     } catch (e) {
-                        console.log('Direct fetch failed, trying with CORS proxy...');
                         const corsProxy = 'https://api.allorigins.win/raw?url=';
                         const longRes = await fetch(corsProxy + encodeURIComponent(LONG_TRACK_CSV));
                         longText = await longRes.text();
                     }
                     
                     try {
-                        // Try direct fetch
                         const shortRes = await fetch(SHORT_TRACK_CSV);
                         shortText = await shortRes.text();
-                        console.log('Short track loaded directly');
                     } catch (e) {
-                        console.log('Direct fetch failed, trying with CORS proxy...');
                         const corsProxy = 'https://api.allorigins.win/raw?url=';
                         const shortRes = await fetch(corsProxy + encodeURIComponent(SHORT_TRACK_CSV));
                         shortText = await shortRes.text();
                     }
                     
-                    console.log('Parsing CSV data...');
                     const longParsed = transformData(parseCSV(longText), true);
                     const shortParsed = transformData(parseCSV(shortText), false);
-                    
-                    console.log(`Loaded ${longParsed.length} long positions, ${shortParsed.length} short positions`);
                     
                     setLongData(longParsed);
                     setShortData(shortParsed);
@@ -1042,8 +1019,6 @@
                     setLoading(false);
                     setError(null);
                 } catch (error) {
-                    console.error('Failed to load data:', error);
-                    console.error('Error details:', error.message);
                     setError(error.message);
                     setLoading(false);
                 } finally {
@@ -1067,15 +1042,6 @@
                     <div className="loading">
                         <div className="spinner"></div>
                         <p style={{color: 'var(--muted-foreground)'}}>Loading leaderboard data...</p>
-                        {error && (
-                            <p style={{color: 'var(--destructive)', marginTop: '1rem', maxWidth: '500px', textAlign: 'center'}}>
-                                Error: {error}
-                                <br/>
-                                <button onClick={loadData} style={{marginTop: '1rem', padding: '0.5rem 1rem', cursor: 'pointer'}}>
-                                    Retry
-                                </button>
-                            </p>
-                        )}
                     </div>
                 );
             }
@@ -1166,7 +1132,7 @@
                                         </td>
                                     </tr>
                                 ) : (
-                                    rest.map((entry, idx) => (
+                                    rest.map((entry) => (
                                         <SubmissionRow 
                                             key={`${entry.asset}-${entry.rank}`}
                                             entry={entry}
@@ -1176,8 +1142,21 @@
                             </tbody>
                         </table>
                     </div>
-                    <div style={{
+                    
+                    <h2 style={{
+                        fontSize: '1.5rem',
+                        fontWeight: '700',
                         marginTop: '3rem',
+                        marginBottom: '1.5rem',
+                        color: 'var(--primary)',
+                        textAlign: 'center',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em'
+                    }}>
+                        Competition Categories
+                    </h2>
+                    
+                    <div style={{
                         padding: '2rem',
                         background: 'rgba(26, 26, 26, 0.5)',
                         border: '1px solid var(--border)',
@@ -1273,6 +1252,7 @@
                             </div>
                         </div>
                     </div>
+                    
                     <div className="attribution">
                         Made by <a href="https://x.com/EzvenG" target="_blank" rel="noopener noreferrer">ezven.eth</a>
                     </div>
@@ -1287,7 +1267,6 @@
             const medal = getPodiumEmoji(rank);
             const hasMultiple = entry.submissionCount > 1;
             
-            // Use green for long positions, red for short positions
             const accentColor = isLong ? '#10b981' : '#ef4444';
             const accentColorRgb = isLong ? '16, 185, 129' : '239, 68, 68';
             
@@ -1299,95 +1278,103 @@
                         entry={entry}
                     />
                     <div className={classes}>
-                    <div className="avatar-container">
-                        <div className={`rank-badge ${isFirst ? 'first' : ''}`}>
-                            Rank #{rank}
-                        </div>
-                        <div className={`avatar ${isFirst ? 'first' : ''}`}>
-                            <img 
-                                src={entry.logo} 
-                                alt={entry.asset}
-                                onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.nextSibling.style.display = 'flex';
-                                }}
-                                style={{width: '100%', height: '100%', objectFit: 'cover'}}
-                            />
-                            <div style={{
-                                display: 'none',
-                                width: '100%',
-                                height: '100%',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: isFirst ? '6rem' : '4.5rem',
-                                background: 'rgba(0, 0, 0, 0.5)'
-                            }}>
-                                {medal}
+                        <div className="avatar-container">
+                            <div className={`rank-badge ${isFirst ? 'first' : ''}`}>
+                                Rank #{rank}
+                            </div>
+                            <div className={`avatar ${isFirst ? 'first' : ''}`}>
+                                <img 
+                                    src={entry.logo} 
+                                    alt={entry.asset}
+                                    onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        e.target.nextSibling.style.display = 'flex';
+                                    }}
+                                    style={{width: '100%', height: '100%', objectFit: 'cover'}}
+                                />
+                                <div style={{
+                                    display: 'none',
+                                    width: '100%',
+                                    height: '100%',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: isFirst ? '6rem' : '4.5rem',
+                                    background: 'rgba(0, 0, 0, 0.5)'
+                                }}>
+                                    {medal}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div className="stats-card">
-                        <div className="asset-name">{entry.asset}</div>
-                        <div className={`percentage`} style={{color: entry.percentage >= 0 ? '#10b981' : '#ef4444'}}>
-                            {entry.percentage >= 0 ? '↗' : '↘'} {Math.abs(entry.percentage).toFixed(2)}%
-                        </div>
-                        <div className="school-name" style={{fontSize: '0.8em', marginTop: '0.25rem'}}>
+                        
+                        <div className="stats-card" style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            minHeight: '180px'
+                        }}>
+                            <div className="asset-name">{entry.asset}</div>
+                            <div className={`percentage`} style={{color: entry.percentage >= 0 ? '#10b981' : '#ef4444'}}>
+                                {entry.percentage >= 0 ? '↗' : '↘'} {Math.abs(entry.percentage).toFixed(2)}%
+                            </div>
+                            <div className="school-name" style={{fontSize: '0.8em', marginTop: '0.25rem', flex: 1}}>
+                                {hasMultiple ? (
+                                    entry.schools.slice(0, 2).join(', ') + (entry.schools.length > 2 ? ` +${entry.schools.length - 2}` : '')
+                                ) : (
+                                    entry.submissions[0].school
+                                )}
+                            </div>
                             {hasMultiple ? (
-                                entry.schools.slice(0, 2).join(', ') + (entry.schools.length > 2 ? ` +${entry.schools.length - 2}` : '')
+                                <button 
+                                    onClick={() => setShowModal(true)}
+                                    style={{
+                                        display: 'inline-block',
+                                        marginTop: '0.5rem',
+                                        background: `rgba(${accentColorRgb}, 0.15)`,
+                                        border: `1px solid rgba(${accentColorRgb}, 0.3)`,
+                                        color: accentColor,
+                                        padding: '0.35rem 0.75rem',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        fontSize: '0.75em',
+                                        fontWeight: '500',
+                                        transition: 'all 0.2s',
+                                        textDecoration: 'none',
+                                        fontFamily: "'JetBrains Mono', monospace",
+                                        alignSelf: 'center'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.25)`}
+                                    onMouseLeave={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.15)`}
+                                >
+                                    View Reports →
+                                </button>
                             ) : (
-                                entry.submissions[0].school
+                                <a 
+                                    href={entry.submissions[0].link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                        display: 'inline-block',
+                                        marginTop: '0.5rem',
+                                        background: `rgba(${accentColorRgb}, 0.15)`,
+                                        border: `1px solid rgba(${accentColorRgb}, 0.3)`,
+                                        color: accentColor,
+                                        padding: '0.35rem 0.75rem',
+                                        borderRadius: '6px',
+                                        textDecoration: 'none',
+                                        fontSize: '0.75em',
+                                        fontWeight: '500',
+                                        transition: 'all 0.2s',
+                                        fontFamily: "'JetBrains Mono', monospace",
+                                        alignSelf: 'center'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.25)`}
+                                    onMouseLeave={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.15)`}
+                                >
+                                    View Report →
+                                </a>
                             )}
                         </div>
-                        {hasMultiple ? (
-                            <button 
-                                onClick={() => setShowModal(true)}
-                                style={{
-                                    display: 'inline-block',
-                                    marginTop: '0.5rem',
-                                    background: `rgba(${accentColorRgb}, 0.15)`,
-                                    border: `1px solid rgba(${accentColorRgb}, 0.3)`,
-                                    color: accentColor,
-                                    padding: '0.35rem 0.75rem',
-                                    borderRadius: '6px',
-                                    cursor: 'pointer',
-                                    fontSize: '0.75em',
-                                    fontWeight: '500',
-                                    transition: 'all 0.2s',
-                                    textDecoration: 'none'
-                                }}
-                                onMouseEnter={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.25)`}
-                                onMouseLeave={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.15)`}
-                            >
-                                View Reports →
-                            </button>
-                        ) : (
-                            <a 
-                                href={entry.submissions[0].link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                    display: 'inline-block',
-                                    marginTop: '0.5rem',
-                                    background: `rgba(${accentColorRgb}, 0.15)`,
-                                    border: `1px solid rgba(${accentColorRgb}, 0.3)`,
-                                    color: accentColor,
-                                    padding: '0.35rem 0.75rem',
-                                    borderRadius: '6px',
-                                    textDecoration: 'none',
-                                    fontSize: '0.75em',
-                                    fontWeight: '500',
-                                    transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.25)`}
-                                onMouseLeave={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.15)`}
-                            >
-                                View Report →
-                            </a>
-                        )}
                     </div>
-                </div>
-            </>
+                </>
             );
         }
 
