@@ -1176,7 +1176,103 @@
                             </tbody>
                         </table>
                     </div>
-                    
+                    <div style={{
+                        marginTop: '3rem',
+                        padding: '2rem',
+                        background: 'rgba(26, 26, 26, 0.5)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '8px'
+                    }}>
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                            gap: '1.5rem'
+                        }}>
+                            <div style={{
+                                padding: '1.5rem',
+                                background: 'rgba(0, 0, 0, 0.3)',
+                                border: '1px solid var(--border)',
+                                borderRadius: '6px'
+                            }}>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.75rem',
+                                    marginBottom: '0.75rem'
+                                }}>
+                                    <span style={{fontSize: '1.5rem'}}>📚</span>
+                                    <h3 style={{
+                                        fontSize: '1rem',
+                                        fontWeight: '700',
+                                        color: 'var(--foreground)'
+                                    }}>Long &lt; $250M MC</h3>
+                                </div>
+                                <p style={{
+                                    color: 'var(--muted-foreground)',
+                                    fontSize: '0.875rem',
+                                    lineHeight: '1.6'
+                                }}>
+                                    Students selected assets under $250M market cap and argued a long thesis.
+                                </p>
+                            </div>
+
+                            <div style={{
+                                padding: '1.5rem',
+                                background: 'rgba(0, 0, 0, 0.3)',
+                                border: '1px solid var(--border)',
+                                borderRadius: '6px'
+                            }}>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.75rem',
+                                    marginBottom: '0.75rem'
+                                }}>
+                                    <span style={{fontSize: '1.5rem'}}>📈</span>
+                                    <h3 style={{
+                                        fontSize: '1rem',
+                                        fontWeight: '700',
+                                        color: 'var(--foreground)'
+                                    }}>Long &gt; $250M MC</h3>
+                                </div>
+                                <p style={{
+                                    color: 'var(--muted-foreground)',
+                                    fontSize: '0.875rem',
+                                    lineHeight: '1.6'
+                                }}>
+                                    Students selected assets over $250M market cap and argued a long thesis.
+                                </p>
+                            </div>
+
+                            <div style={{
+                                padding: '1.5rem',
+                                background: 'rgba(0, 0, 0, 0.3)',
+                                border: '1px solid var(--border)',
+                                borderRadius: '6px'
+                            }}>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.75rem',
+                                    marginBottom: '0.75rem'
+                                }}>
+                                    <span style={{fontSize: '1.5rem'}}>📉</span>
+                                    <h3 style={{
+                                        fontSize: '1rem',
+                                        fontWeight: '700',
+                                        color: 'var(--foreground)'
+                                    }}>Short &gt; $1B MC</h3>
+                                </div>
+                                <p style={{
+                                    color: 'var(--muted-foreground)',
+                                    fontSize: '0.875rem',
+                                    lineHeight: '1.6'
+                                }}>
+                                    Students selected assets over $1B market cap and argued a short thesis.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                     <div className="attribution">
                         Made by <a href="https://x.com/EzvenG" target="_blank" rel="noopener noreferrer">ezven.eth</a>
                     </div>
