@@ -1315,7 +1315,17 @@
                             <div className={`percentage`} style={{color: entry.percentage >= 0 ? '#10b981' : '#ef4444'}}>
                                 {entry.percentage >= 0 ? '↗' : '↘'} {Math.abs(entry.percentage).toFixed(2)}%
                             </div>
-                            <div className="school-name" style={{fontSize: '0.8em', marginTop: '0.25rem', flex: 1}}>
+                            <div className="school-name" style={{
+                                fontSize: '0.8em', 
+                                marginTop: '0.25rem', 
+                                flex: 1,
+                                minHeight: '2.5em',
+                                lineHeight: '1.25em',
+                                overflow: 'hidden',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical'
+                            }}>
                                 {hasMultiple ? (
                                     entry.schools.slice(0, 2).join(', ') + (entry.schools.length > 2 ? ` +${entry.schools.length - 2}` : '')
                                 ) : (
