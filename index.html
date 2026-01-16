@@ -1183,6 +1183,26 @@
                         border: '1px solid var(--border)',
                         borderRadius: '8px'
                     }}>
+                        <h2 style={{
+                            fontSize: '1.5rem',
+                            fontWeight: '700',
+                            marginBottom: '2rem',
+                            color: 'var(--primary)',
+                            textAlign: 'center',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.1em'
+                        }}>
+                            Competition Categories
+                        </h2>
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                            gap: '1.5rem'
+                        }}>
+                        background: 'rgba(26, 26, 26, 0.5)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '8px'
+                    }}>
                         <div style={{
                             display: 'grid',
                             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
@@ -1200,7 +1220,7 @@
                                     gap: '0.75rem',
                                     marginBottom: '0.75rem'
                                 }}>
-                                    <span style={{fontSize: '1.5rem'}}>📚</span>
+                                    <span style={{fontSize: '1.5rem'}}>📊</span>
                                     <h3 style={{
                                         fontSize: '1rem',
                                         fontWeight: '700',
@@ -1327,7 +1347,73 @@
                         </div>
                     </div>
                     
-                    <div className="stats-card">
+                    <div className="stats-card" style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: '180px'
+                    }}>
+                        <div className="asset-name">{entry.asset}</div>
+                        <div className={`percentage`} style={{color: entry.percentage >= 0 ? '#10b981' : '#ef4444'}}>
+                            {entry.percentage >= 0 ? '↗' : '↘'} {Math.abs(entry.percentage).toFixed(2)}%
+                        </div>
+                        <div className="school-name" style={{fontSize: '0.8em', marginTop: '0.25rem', flex: 1}}>
+                            {hasMultiple ? (
+                                entry.schools.slice(0, 2).join(', ') + (entry.schools.length > 2 ? ` +${entry.schools.length - 2}` : '')
+                            ) : (
+                                entry.submissions[0].school
+                            )}
+                        </div>
+                        {hasMultiple ? (
+                            <button 
+                                onClick={() => setShowModal(true)}
+                                style={{
+                                    display: 'inline-block',
+                                    marginTop: '0.5rem',
+                                    background: `rgba(${accentColorRgb}, 0.15)`,
+                                    border: `1px solid rgba(${accentColorRgb}, 0.3)`,
+                                    color: accentColor,
+                                    padding: '0.35rem 0.75rem',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.75em',
+                                    fontWeight: '500',
+                                    transition: 'all 0.2s',
+                                    textDecoration: 'none',
+                                    fontFamily: "'JetBrains Mono', monospace",
+                                    alignSelf: 'center'
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.25)`}
+                                onMouseLeave={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.15)`}
+                            >
+                                View Reports →
+                            </button>
+                        ) : (
+                            <a 
+                                href={entry.submissions[0].link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                    display: 'inline-block',
+                                    marginTop: '0.5rem',
+                                    background: `rgba(${accentColorRgb}, 0.15)`,
+                                    border: `1px solid rgba(${accentColorRgb}, 0.3)`,
+                                    color: accentColor,
+                                    padding: '0.35rem 0.75rem',
+                                    borderRadius: '6px',
+                                    textDecoration: 'none',
+                                    fontSize: '0.75em',
+                                    fontWeight: '500',
+                                    transition: 'all 0.2s',
+                                    fontFamily: "'JetBrains Mono', monospace",
+                                    alignSelf: 'center'
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.25)`}
+                                onMouseLeave={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.15)`}
+                            >
+                                View Report →
+                            </a>
+                        )}
+                    </div>
                         <div className="asset-name">{entry.asset}</div>
                         <div className={`percentage`} style={{color: entry.percentage >= 0 ? '#10b981' : '#ef4444'}}>
                             {entry.percentage >= 0 ? '↗' : '↘'} {Math.abs(entry.percentage).toFixed(2)}%
