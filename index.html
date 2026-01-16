@@ -609,7 +609,7 @@
         padding: 1rem;
     }
     
-    /* COMPACT CARD LAYOUT */
+    /* COMPACT CARD LAYOUT - FIXED ARROW ALIGNMENT */
     tbody tr {
         background: rgba(10, 10, 10, 0.8) !important;
         border: 1px solid var(--border);
@@ -617,7 +617,8 @@
         padding: 1rem;
         margin-bottom: 0;
         position: relative;
-        display: flex;
+        display: grid;
+        grid-template-columns: 50px 1fr auto;
         align-items: center;
         gap: 1rem;
     }
@@ -636,37 +637,27 @@
     td {
         border: none;
         padding: 0;
-    }
-    
-    /* Show only rank and asset in compact view */
-    td:nth-child(1), /* Rank */
-    td:nth-child(2), /* Asset */
-    td:nth-child(6)  /* Arrow button */
-    {
-        display: block;
-    }
-    
-    /* Hide performance, school, and report by default */
-    td:nth-child(3), /* Performance */
-    td:nth-child(4), /* School */
-    td:nth-child(5)  /* Report */
-    {
         display: none;
     }
     
-    /* Rank - left side, large */
+    /* Show only rank, asset, and arrow */
+    td:nth-child(1) { display: block; } /* Rank */
+    td:nth-child(2) { display: block; } /* Asset */
+    td:nth-child(6) { display: block; } /* Arrow */
+    
+    /* Rank - left column */
     .rank-cell {
         font-size: 2rem;
         color: var(--muted-foreground);
         font-weight: 700;
-        flex-shrink: 0;
-        width: 50px;
         text-align: center;
+        grid-column: 1;
     }
     
-    /* Asset - middle, takes remaining space */
+    /* Asset - middle column */
     td:nth-child(2) {
-        flex: 1;
+        grid-column: 2;
+        min-width: 0;
     }
     
     .asset-cell {
@@ -678,9 +669,10 @@
         height: 20px;
     }
     
-    /* Arrow button - right side */
+    /* Arrow - right column, ALWAYS aligned */
     td:nth-child(6) {
-        flex-shrink: 0;
+        grid-column: 3;
+        justify-self: end;
     }
     
     .link-cell button,
@@ -692,6 +684,7 @@
         padding: 0.5rem;
         cursor: pointer;
         transition: all 0.2s;
+        display: block;
     }
     
     .link-cell button:hover,
@@ -730,9 +723,12 @@
         font-size: 1.5rem;
     }
     
+    tbody tr {
+        grid-template-columns: 40px 1fr auto;
+    }
+    
     .rank-cell {
         font-size: 1.5rem;
-        width: 40px;
     }
     
     .asset-cell {
