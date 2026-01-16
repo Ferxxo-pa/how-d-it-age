@@ -1247,6 +1247,7 @@
                             <button 
                                 onClick={() => setShowModal(true)}
                                 style={{
+                                    display: 'inline-block',
                                     marginTop: '0.5rem',
                                     background: `rgba(${accentColorRgb}, 0.15)`,
                                     border: `1px solid rgba(${accentColorRgb}, 0.3)`,
@@ -1257,12 +1258,12 @@
                                     fontSize: '0.75em',
                                     fontWeight: '500',
                                     transition: 'all 0.2s',
-                                    width: '100%'
+                                    textDecoration: 'none'
                                 }}
                                 onMouseEnter={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.25)`}
                                 onMouseLeave={(e) => e.target.style.background = `rgba(${accentColorRgb}, 0.15)`}
                             >
-                                ▶ View {entry.submissionCount} Reports
+                                View Reports →
                             </button>
                         ) : (
                             <a 
